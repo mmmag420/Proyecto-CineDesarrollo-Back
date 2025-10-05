@@ -1,0 +1,7 @@
+.classpath
+.project
+.settings/
+target/
+.mvn/wrapper/maven-wrapper.jar
+.DS_Store
+Thumbs.db
