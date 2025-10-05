@@ -5,11 +5,13 @@ public class Bill {
 	private int idFactura;
 	private int usuarioid;
 	private double valorFactura;
+	private String metodoDePago;
 	
-	public Bill(int idFactura, int usuarioid, double valorFactura) {
+	public Bill(int idFactura, int usuarioid, double valorFactura, String metodoDePago) {
 		this.idFactura = idFactura;
 		this.usuarioid = usuarioid;
 		this.valorFactura = valorFactura;
+		this.metodoDePago = metodoDePago;
 	}
 
 	public int getIdFactura() {
@@ -35,6 +37,16 @@ public class Bill {
 	public void setValorFactura(double valorFactura) {
 		this.valorFactura = valorFactura;
 	}
+
+	public String getMetodoDePago() {
+		return metodoDePago;
+	}
+
+	public void setMetodoDePago(String metodoDePago) {
+		this.metodoDePago = metodoDePago;
+	}
+	
+	
 	
 	
 	
