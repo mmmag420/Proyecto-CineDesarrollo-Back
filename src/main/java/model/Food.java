@@ -16,6 +16,9 @@ public class Food {
 		return idCombo;
 	}
 
+	public void setIdCombo(int idCombo) {
+		this.idCombo = idCombo;
+	}
 
 	public double getPrecio() {
 		return precio;
@@ -28,6 +31,13 @@ public class Food {
 	public String getDescripcion() {
 		return descripcion;
 	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+	
+	
+    
 
 	
 	

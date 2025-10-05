@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Client extends User {
 
 	private String cedula;
@@ -8,10 +10,10 @@ public class Client extends User {
 	private int edad;
 	private String ciudad;
 	private boolean estadoMembresia;
-	private Bill[] historial;
+	private ArrayList<Bill> historial;
 	private Car carrito;
 	
-	public Client(String rol, int id, String correo, String contraseña, String cedula, String nombre, String apellido, int edad, String ciudad, boolean estadoMembresia, Bill[] historial, Car carrito) {
+	public Client(String rol, int id, String correo, String contraseña, String cedula, String nombre, String apellido, int edad, String ciudad, boolean estadoMembresia, ArrayList<Bill> historial, Car carrito) {
 		super(rol, id, correo, contraseña);
 		this.cedula = cedula;
 		this.nombre = nombre;
@@ -71,11 +73,11 @@ public class Client extends User {
 		this.estadoMembresia = estadoMembresia;
 	}
 
-	public Bill[] getHistorial() {
+	public ArrayList<Bill> getHistorial() {
 		return historial;
 	}
 
-	public void setHistorial(Bill[] historial) {
+	public void setHistorial(ArrayList<Bill> historial) {
 		this.historial = historial;
 	}
 
@@ -86,6 +88,14 @@ public class Client extends User {
 	public void setCarrito(Car carrito) {
 		this.carrito = carrito;
 	}
+	
+	
+	
+	
+	
+	
+
+    
 	
 	
 	
