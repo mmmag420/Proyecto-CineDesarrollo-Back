@@ -82,5 +82,17 @@ public class RepositorySala {
 		return true;
 	}
 	
+	public List<Hall> listarPorPeliculaYDia(String peliculaId, String diaISO) {
+	    List<Hall> r = new ArrayList<>();
+	    for (Hall f : funciones) {
+	        if (f.getDiaPelicula().equals(diaISO)
+	            && f.getMovie() != null
+	            && peliculaId.equals(f.getMovie().getId())) {
+	            r.add(f);
+	        }
+	    }
+	    return r;
+	}
+	
 	
 }

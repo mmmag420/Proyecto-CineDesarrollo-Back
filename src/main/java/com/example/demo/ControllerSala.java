@@ -131,6 +131,17 @@ public class ControllerSala {
 
 	        return ResponseEntity.status(HttpStatus.CREATED).build();
 	    }
+	    
+	    
+		    @Operation(summary = "Funciones por película y día",
+		            description = "Devuelve funciones (sala + horarios) para la película indicada en el día dado.")
+		 @ApiResponses(@ApiResponse(responseCode = "200", description = "OK"))
+		 @GetMapping("/funciones-por-pelicula")
+		 public ResponseEntity<List<Hall>> funcionesPorPelicula(
+		         @RequestParam String peliculaId,
+		         @RequestParam String dia) {
+		     return ResponseEntity.ok(serviceSala.funcionesPorPelicula(peliculaId, dia));
+		 }
     
     
 	    /*@Operation(summary = "Liberar una silla",
