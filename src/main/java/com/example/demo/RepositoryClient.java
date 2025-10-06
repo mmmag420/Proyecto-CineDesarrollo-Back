@@ -65,6 +65,15 @@ public class RepositoryClient {
 	public ArrayList<Client> getListaClientes() {
 		return listaClientes;
 	}
+	
+	public Client buscarPorCorreoYContraseña(String correo, String contraseña) {		
+		for(int i = 0; i < listaClientes.size(); i++) {
+			if(listaClientes.get(i).getCorreo().equals(correo) && listaClientes.get(i).getContraseña().equals(contraseña)) {
+				return listaClientes.get(i);
+			}
+		}
+		return null;
+	}
 
 
 

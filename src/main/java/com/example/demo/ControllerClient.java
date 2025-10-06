@@ -53,10 +53,10 @@ public class ControllerClient {
 	
 	
 	//guardar cliente
-    @Operation(summary = "Crear cliente", description = "Registra un nuevo cliente. Reglas: cédula única y edad >= 18.")
+    @Operation(summary = "Crear cliente", description = "Registra un nuevo cliente. Reglas: cedula unica y edad >= 18.")
     @ApiResponses({ @ApiResponse(responseCode = "201", description = "Cliente creado"),
-    				@ApiResponse(responseCode = "409", description = "Cédula ya registrada"), 
-    				@ApiResponse(responseCode = "400", description = "Datos inválidos (cédula/edad)")})	
+    				@ApiResponse(responseCode = "409", description = "Cedula ya registrada"), 
+    				@ApiResponse(responseCode = "400", description = "Datos inválidos (cedula/edad)")})	
 	@PostMapping
 	public ResponseEntity<?> crear(@RequestBody Client body) {
 		boolean ok = clienteService.guardarCliente(body);
@@ -72,21 +72,23 @@ public class ControllerClient {
 		
 	}
     
+    
 	
 	//buscar
-    @Operation(summary = "Obtener cliente por cédula", description = "Consulta un cliente específico usando su cédula.")
+    @Operation(summary = "Obtener cliente por cédula", description = "Consulta un cliente específico usando su cedula.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
         @ApiResponse(responseCode = "404", description = "Cliente no encontrado")})  
     
 	@GetMapping("/{cedula}")
-	public ResponseEntity<?> obtener(@Parameter(description = "Cédula del cliente a consultar", example = "1034290939") @PathVariable String cedula) {
+	public ResponseEntity<?> obtener(@Parameter(description = "Cedula del cliente a consultar", example = "1034290939") @PathVariable String cedula) {
 		Client cliente = clienteService.buscarCliente(cedula);
         return (cliente == null) ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado") : ResponseEntity.ok(cliente);   
 	}
+    
 	
 	//editar
-    @Operation(summary = "Actualizar cliente (PUT)", description = "Reemplaza todos los datos del cliente manteniendo la misma cédula.")    
+    @Operation(summary = "Actualizar cliente (PUT)", description = "Reemplaza todos los datos del cliente manteniendo la misma cedula.")    
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente actualizado"),
         @ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
@@ -106,14 +108,14 @@ public class ControllerClient {
 		}
 		return ResponseEntity.ok(body);
 	}
+    
 	
 	//eliminar
-    @Operation(summary = "Eliminar cliente", description = "Elimina un cliente por su cédula.")   
+    @Operation(summary = "Eliminar cliente", description = "Elimina un cliente por su cedula.")   
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Cliente eliminado"),
         @ApiResponse(responseCode = "404", description = "Cliente no encontrado")
     })
-    
 	@DeleteMapping("/{cedula}")
 	public ResponseEntity<?> eliminar(@Parameter(description = "Cédula del cliente a eliminar", example = "1034290939")@PathVariable String cedula) {
 		Client existente = clienteService.buscarCliente(cedula);
@@ -127,6 +129,28 @@ public class ControllerClient {
 		return ResponseEntity.noContent().build();
 
 	}
+    
+    
+    //buscar por correo y contraseña
+    @Operation(summary = "Login de cliente", description = "Permite autenticar a un cliente enviando correo y contraseña. Devuelve el cliente si las credenciales son válidas.")
+    @ApiResponses(value = {
+    	    @ApiResponse(responseCode = "200", description = "Login exitoso, retorna los datos del cliente"),
+    	    @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    	})     
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+    	String correo = body.get("correo");
+    	String password = body.get("contraseña");
+    	
+    	Client c = clienteService.buscarPorCorreoYContraseña(correo, password);
+        if (c == null) {
+            // No decimos si falló el correo o la contraseña por seguridad
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
+        }
+               
+        return ResponseEntity.ok(c);
+    }
+    
 	
 	
 	
