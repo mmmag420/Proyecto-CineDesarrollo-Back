@@ -51,6 +51,11 @@ https://maven.apache.org/xsd/maven-4.0.0.xsd">
 <scope>test</scope>
 </dependency>
 <dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.6.0</version>
+</dependency>
+<dependency>
 <groupId>com.mysql</groupId>
 <artifactId>mysql-connector-j</artifactId>
 <version>9.2.0</version>
