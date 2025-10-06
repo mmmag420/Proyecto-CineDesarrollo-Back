@@ -1,7 +1,10 @@
 package model;
 
+import java.util.UUID;
+
 public class Movie {
 	
+	private String id;
     private String nombre;
     private String descripcion;
     private String clasificacion;
@@ -11,8 +14,14 @@ public class Movie {
     private String trailer;
     private String duracion;
     
-    public Movie(String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String trailer, String duracion) {
-        this.nombre = nombre;
+   /* public Movie() {
+        this.id = id;
+    }*/
+
+
+    public Movie(String id, String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String trailer, String duracion) {
+    	this.id = id;;
+    	this.nombre = nombre;
         this.descripcion = descripcion;
         this.clasificacion = clasificacion;
         this.reparto = reparto;
@@ -22,6 +31,14 @@ public class Movie {
         this.duracion = duracion;
     }
     
+    public String getId() { 
+    	return id;
+    	}
+    
+    public void setId(String id) {
+    	this.id = id;
+    	}
+
     public String getNombre() {
         return nombre;
     }
