@@ -121,6 +121,11 @@ public class ServiceSala {
             return 120; // por default 2h si no se puede parsear
         }
     }
+    
+    public List<Hall> funcionesPorPelicula(String peliculaId, String diaISO) {
+        return repo.listarPorPeliculaYDia(peliculaId, diaISO);
+    }
+
 	
 	
 }
