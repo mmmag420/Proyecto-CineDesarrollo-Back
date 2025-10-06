@@ -1,4 +1,5 @@
 package com.example.demo;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -77,5 +78,12 @@ public class ServiceClient {
 		return repo.eliminar(cliente);
 	}
 	
+	public Client buscarPorCorreoYContraseña(String correo, String contraseña) {
+		Client cliente = repo.buscarPorCorreoYContraseña(correo, contraseña);
+		if(cliente == null) {
+			return null;
+		}
+		return cliente;
+	}
 	
 }
