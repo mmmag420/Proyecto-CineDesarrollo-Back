@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import model.Car;
 import model.Food;
+import model.Ticket;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,6 +55,24 @@ public class ControllerCarrito {
     @DeleteMapping
     public void vaciar() {
         servicio.vaciarCarrito();
+    }
+    
+    @Operation(summary = "Listar entradas del carrito")
+    @GetMapping("/entradas")
+    public List<Ticket> listarEntradas() {
+        return servicio.listarEntradasDelCarrito();
+    }
+
+    @Operation(summary = "Agregar entrada (numSala y numSilla) — $14.000 c/u")
+    @PostMapping("/entradas/{numSala}/{numSilla}")
+    public void agregarEntrada(@PathVariable int numSala, @PathVariable int numSilla) {
+        servicio.agregarEntradaAlCarrito(numSala, numSilla);
+    }
+
+    @Operation(summary = "Eliminar entrada por número de entrada")
+    @DeleteMapping("/entradas/{numEntrada}")
+    public void eliminarEntrada(@PathVariable int numEntrada) {
+        servicio.eliminarEntradaDelCarrito(numEntrada);
     }
 
 }
