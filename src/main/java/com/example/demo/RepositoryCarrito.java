@@ -4,7 +4,6 @@ import model.Car;
 import model.Food;
 import model.Ticket;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 

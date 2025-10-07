@@ -35,11 +35,5 @@ public class Ticket {
 	public void setSala(Hall sala) {
 		this.sala = sala;
 	}
-	
-	
-	
-	
-	
-	
 
 }

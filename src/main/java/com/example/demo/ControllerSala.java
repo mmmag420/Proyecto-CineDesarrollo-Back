@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import model.Hall;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
-import org.springframework.web.bind.annotation.RequestBody; 
 
 
 @RestController
@@ -142,46 +141,5 @@ public class ControllerSala {
 		         @RequestParam String dia) {
 		     return ResponseEntity.ok(serviceSala.funcionesPorPelicula(peliculaId, dia));
 		 }
-    
-    
-	    /*@Operation(summary = "Liberar una silla",
-	               description = "Libera una silla previamente reservada en una función (sala, día, hora).")
-	    @ApiResponses({
-	        @ApiResponse(responseCode = "204", description = "Liberada"),
-	        @ApiResponse(responseCode = "404", description = "Función no encontrada"),
-	        @ApiResponse(responseCode = "400", description = "Datos inválidos")
-	    })
-	    @DeleteMapping("/{sala}/reservas")
-	    public ResponseEntity<?> liberar(
-	            @PathVariable int sala,
-	            @RequestBody(
-	                description = "Datos de liberación",
-	                required = true,
-	                content = @Content(mediaType = "application/json",
-	                   examples = @ExampleObject(
-	                       value = "{ \"dia\": \"2025-10-07\", \"hora\": \"16:50\", \"silla\": 30 }"
-	                   )
-	                )
-	            )
-	            Map<String, Object> body) {
-
-	        String dia = (String) body.get("dia");
-	        String hora = (String) body.get("hora");
-	        Integer silla = (body.get("silla") instanceof Integer) ? (Integer) body.get("silla") : null;
-
-	        if (dia == null || hora == null || silla == null) {
-	            return ResponseEntity.badRequest().body("Faltan campos: dia, hora, silla");
-	        }
-
-	        var hall = serviceSala.detalleFuncion(sala, dia, hora);
-	        if (hall == null) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
-	        }
-
-	        // Marca libre (si ya estaba libre, devuelve false en tu repo; puedes tratarlos como 204 igual)
-	        boolean ok = serviceSala.liberarSilla(sala, dia, hora, silla);
-	        return ok ? ResponseEntity.noContent().build()
-	                  : ResponseEntity.badRequest().body("Silla inválida o ya estaba libre");
-	    }*/
 	
 }

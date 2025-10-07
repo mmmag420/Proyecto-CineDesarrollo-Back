@@ -35,12 +35,5 @@ public class Food {
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	
-	
-    
 
-	
-	
-	
-	
 }

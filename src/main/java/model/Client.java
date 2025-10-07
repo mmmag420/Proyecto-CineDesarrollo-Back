@@ -89,16 +89,4 @@ public class Client extends User {
 		this.carrito = carrito;
 	}
 	
-
-    
-	
-    
-	
-	
-    
- 
-    
-
-	
-	
 }

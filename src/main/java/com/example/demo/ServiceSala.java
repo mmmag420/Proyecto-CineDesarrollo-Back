@@ -1,14 +1,11 @@
 package com.example.demo;
 
 import java.time.DayOfWeek;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
-
 import model.Chair;
 import model.Hall;
 import model.Movie;
@@ -38,9 +35,8 @@ public class ServiceSala {
 	}
 
     public void sembrarSemana(Movie peliSala1, Movie peliSala2, Movie peliSala3) {
-        LocalDate base = LocalDate.now(); // hoy
-        // Duraciones (puedes leerlas del Movie si tienes duración como minutos):
-        int durSala1 = parseDuracionMinutos(peliSala1.getDuracion()); // "1h 55m" -> 115
+        LocalDate base = LocalDate.now(); 
+        int durSala1 = parseDuracionMinutos(peliSala1.getDuracion()); 
         int durSala2 = parseDuracionMinutos(peliSala2.getDuracion());
         int durSala3 = parseDuracionMinutos(peliSala3.getDuracion());
 
@@ -54,19 +50,6 @@ public class ServiceSala {
             crearFuncionesDelDia(3, peliSala3, diaISO, horas, durSala3);
         }
     }
-
-    /*public void reprogramarSalaDesde(int sala, Movie nuevaPeli, LocalDate desde) {
-        // 1) borrar funciones de esa sala desde 'desde'
-        repo.borrarFuncionesSalaDesde(sala, desde);
-
-        // 2) (re)sembrar desde 'desde' por 7 días (o el rango que quieras)
-        int dur = parseDuracionMinutos(nuevaPeli.getDuracion());
-        for (int d = 0; d < 7; d++) {
-            LocalDate dia = desde.plusDays(d);
-            String[] horas = horariosSemana.getOrDefault(dia.getDayOfWeek(), new String[0]);
-            crearFuncionesDelDia(sala, nuevaPeli, dia.toString(), horas, dur);
-        }
-    }*/
       
     public List<Hall> listarFunciones(int sala, String diaISO) {
         return repo.listarPorSalaYDia(sala, diaISO);
@@ -118,7 +101,7 @@ public class ServiceSala {
             int mins  = (mIndex > hIndex) ? Integer.parseInt(dur.substring(hIndex + 1, mIndex).trim()) : 0;
             return horas * 60 + mins;
         } catch (Exception e) {
-            return 120; // por default 2h si no se puede parsear
+            return 120; 
         }
     }
     

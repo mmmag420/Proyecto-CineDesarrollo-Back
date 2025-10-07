@@ -3,11 +3,8 @@ package com.example.demo;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Repository;
-
 import model.Chair;
-import model.Client;
 import model.Hall;
 
 @Repository
@@ -19,7 +16,7 @@ public class RepositorySala {
 		
 	}
 	
-    // verifica si dos intervalos de tiempo se CRUZAN
+
 	private boolean intervalosSeCruzan(LocalTime inicio1, LocalTime fin1, LocalTime inicio2, LocalTime fin2) {
 		return inicio1.isBefore(fin2) && inicio2.isBefore(fin1);
 	}	
@@ -74,7 +71,7 @@ public class RepositorySala {
 			return false;
 		}
 		
-		if(sillas[idx].isEstado()) { //ya ocupada
+		if(sillas[idx].isEstado()) { 
 			return false;
 		}
 		

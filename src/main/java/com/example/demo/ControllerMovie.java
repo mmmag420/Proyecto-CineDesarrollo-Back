@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -33,7 +31,7 @@ public class ControllerMovie {
         this.serviceMovie = serviceMovie;
     }
 
-    // Obtener todas las películas
+
     @GetMapping
     @Operation(summary = "Obtener todas las movies", description = "Lista de películas obtenidas con éxito")
     @ApiResponses(value = {
@@ -45,7 +43,7 @@ public class ControllerMovie {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    // Obtener película por ID
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtener movie por ID", description = "Devuelve una movie específica basado en su ID.")
     @ApiResponses(value = {
@@ -61,7 +59,7 @@ public class ControllerMovie {
         }
     }
 
-    // Crear película
+
     @PostMapping
     @Operation(summary = "Crear una nueva movie", description = "Guarda una nueva película en la base de datos")
     @ApiResponses(value = {
@@ -72,7 +70,7 @@ public class ControllerMovie {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    // Actualizar película
+
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar una movie", description = "Actualiza los datos de una película existente")
     @ApiResponses(value = {
@@ -89,7 +87,7 @@ public class ControllerMovie {
         }
     }
 
-    // Eliminar película
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar una movie", description = "Elimina una película existente de la base de datos")
     @ApiResponses(value = {

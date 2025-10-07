@@ -2,7 +2,6 @@ package com.example.demo;
 
 import model.Food;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

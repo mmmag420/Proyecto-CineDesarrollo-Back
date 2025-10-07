@@ -45,10 +45,5 @@ public class Bill {
 	public void setMetodoDePago(String metodoDePago) {
 		this.metodoDePago = metodoDePago;
 	}
-	
-	
-	
-	
-	
 
 }
