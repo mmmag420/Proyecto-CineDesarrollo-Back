@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import model.Car;
 import model.Food;
 import model.Ticket;
-
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

@@ -61,12 +61,5 @@ public class Hall {
 	public void setSillas(Chair[] sillas) {
 		this.sillas = sillas;
 	}
-	
-	
-	
-	
-	
-	
-	
 
 }

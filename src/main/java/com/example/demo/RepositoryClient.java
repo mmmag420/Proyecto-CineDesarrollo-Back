@@ -1,9 +1,8 @@
 package com.example.demo;
+
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Repository;
-
 import model.Client;
 
 @Repository
@@ -18,9 +17,6 @@ public class RepositoryClient {
 	public List<Client> listar() {
 		return new ArrayList<>(listaClientes);
 	}
-	
-	
-	
 	
 	public boolean guardar(Client cliente) {
 		listaClientes.add(cliente);
@@ -74,9 +70,5 @@ public class RepositoryClient {
 		}
 		return null;
 	}
-
-
-
-	
 
 }

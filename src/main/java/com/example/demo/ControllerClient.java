@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import java.util.List;
-
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +19,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-
 import model.Client;
 
 
@@ -44,10 +42,8 @@ public class ControllerClient {
 	@GetMapping
 	public ResponseEntity<List<Client>> listar() {
 	        return ResponseEntity.ok(clienteService.listarClientes());
-	    }
-
-	
-	
+	}
+		
 	//guardar cliente
     @Operation(summary = "Crear cliente", description = "Registra un nuevo cliente. Reglas: cedula unica y edad >= 18.")
     @ApiResponses({ @ApiResponse(responseCode = "201", description = "Cliente creado"),
@@ -90,6 +86,7 @@ public class ControllerClient {
         @ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos (edad >= 18)")
     })
+    
 	@PutMapping("/{cedula}")
 	public ResponseEntity<?> reemplazar(@Parameter(description = "Cédula del cliente a actualizar", example = "1034290939")@PathVariable String cedula,@RequestBody Client body) {
 	
@@ -140,19 +137,11 @@ public class ControllerClient {
     	
     	Client c = clienteService.buscarPorCorreoYContraseña(correo, password);
         if (c == null) {
-            // No decimos si falló el correo o la contraseña por seguridad
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
                
         return ResponseEntity.ok(c);
     }
     
-	
-	
-	
-	
-
-
-	
 	
 }
