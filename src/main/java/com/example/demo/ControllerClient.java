@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import model.Bill;
 import model.Client;
 
 
@@ -142,6 +143,44 @@ public class ControllerClient {
                
         return ResponseEntity.ok(c);
     }
+    
+    
+    @Operation(summary = "Listar facturas de un cliente", description = "Devuelve todas las facturas asociadas al cliente indicado por su ID.")
+        @ApiResponses({ @ApiResponse(responseCode = "200", description = "Éxito: retorna lista (posible lista vacía)"), @ApiResponse(responseCode = "404", description = "Cliente no encontrado")})
+        @GetMapping("/{cedula}/facturas")
+    public ResponseEntity<List<Bill>> listarFacturasDelUser(@PathVariable String cedula) {
+    	Client cliente = clienteService.buscarCliente(cedula);
+    	if(cliente == null) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    	}   	
+    	return ResponseEntity.ok(clienteService.obtenerTodasLasFacturasDelUser(cliente));
+    }
+    
+    
+    @Operation(summary = "Agregar factura a un cliente",description = "Crea una factura y la asocia al cliente indicado por su cédula.")
+    	@ApiResponses({@ApiResponse(responseCode = "201", description = "Factura creada"),
+    		@ApiResponse(responseCode = "400", description = "Datos inválidos"),
+    	    @ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
+    	   })
+    	@PostMapping("/{cedula}/facturas")
+    public ResponseEntity<?> agregarFacturaClient(@PathVariable String cedula, @RequestBody Bill body) {
+    	Client cliente = clienteService.buscarCliente(cedula);
+    	
+    	if(cliente == null) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado");
+    	}
+    	
+    	boolean ok = clienteService.agregarFacturaClient(cliente, body);
+    	if(!ok) {
+    		return ResponseEntity.badRequest().body("No se pudo agregar la factura");
+    	}
+    	return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    	
+    }
+
+    
+    
+   
     
 	
 }

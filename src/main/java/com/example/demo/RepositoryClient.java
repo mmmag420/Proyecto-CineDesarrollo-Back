@@ -3,6 +3,8 @@ package com.example.demo;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
+
+import model.Bill;
 import model.Client;
 
 @Repository
@@ -69,6 +71,15 @@ public class RepositoryClient {
 			}
 		}
 		return null;
+	}
+	
+	public ArrayList<Bill> listarFacturasDelUser(Client cliente) {		
+		return new ArrayList<Bill> (cliente.getHistorial());
+	}
+	
+	public boolean agregarFacturaClient(Client cliente, Bill factura) {
+		cliente.getHistorial().add(factura);
+		return true;
 	}
 
 }

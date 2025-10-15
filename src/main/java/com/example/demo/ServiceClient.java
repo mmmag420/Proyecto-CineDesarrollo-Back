@@ -1,7 +1,10 @@
 package com.example.demo;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+
+import model.Bill;
 import model.Client;
 
 @Service
@@ -15,10 +18,10 @@ public class ServiceClient {
 	}
 	
 	private void iniciarBaseQuemada() {
-		Client mateo = new Client("Cliente", 1, "albornoz.mateo.3059@eam.edu.co", "mateo123", "1034290939", "Mateo", "Albornoz", 20, "Armenia", false, null, null);
-		Client sara = new Client("Cliente", 2, "reyes.sara.3050@eam.edu.co", "sara123", "1092290939", "Sara", "Reyes", 19, "Armenia", false, null, null);
-		Client parra = new Client("Cliente", 3, "parra.david.3052@eam.edu.co", "parra123", "1033290939", "Juan", "Parra", 18, "Armenia", false, null, null);
-		Client salome = new Client("Cliente", 4, "trujillo.salome.3051@eam.edu.co", "salome123", "1045290939", "Salome", "Trujillo", 20, "Armenia", false, null, null);
+		Client mateo = new Client("Cliente", 1, "albornoz.mateo.3059@eam.edu.co", "mateo123", "1034290939", "Mateo", "Albornoz", 20, "Armenia", false, null);
+		Client sara = new Client("Cliente", 2, "reyes.sara.3050@eam.edu.co", "sara123", "1092290939", "Sara", "Reyes", 19, "Armenia", false, null);
+		Client parra = new Client("Cliente", 3, "parra.david.3052@eam.edu.co", "parra123", "1033290939", "Juan", "Parra", 18, "Armenia", false, null);
+		Client salome = new Client("Cliente", 4, "trujillo.salome.3051@eam.edu.co", "salome123", "1045290939", "Salome", "Trujillo", 20, "Armenia", false, null);
 		
 		guardarCliente(mateo);
 		guardarCliente(sara);
@@ -82,6 +85,18 @@ public class ServiceClient {
 			return null;
 		}
 		return cliente;
+	}
+	
+	public ArrayList<Bill> obtenerTodasLasFacturasDelUser(Client cliente) {
+		return repo.listarFacturasDelUser(cliente);
+	}
+	
+	public boolean agregarFacturaClient(Client cliente, Bill factura) {
+		Client encontrado = repo.buscar(cliente.getCedula());
+		if(encontrado == null) {
+			return false;
+		}
+		return repo.agregarFacturaClient(encontrado, factura);
 	}
 	
 }
