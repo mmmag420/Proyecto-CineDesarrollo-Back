@@ -1,17 +1,21 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Bill {
 	
 	private int idFactura;
 	private int usuarioid;
 	private double valorFactura;
 	private String metodoDePago;
+	private Car carrito;
 	
-	public Bill(int idFactura, int usuarioid, double valorFactura, String metodoDePago) {
+	public Bill(int idFactura, int usuarioid, double valorFactura, String metodoDePago, Car carrito) {
 		this.idFactura = idFactura;
 		this.usuarioid = usuarioid;
 		this.valorFactura = valorFactura;
 		this.metodoDePago = metodoDePago;
+		this.carrito = carrito;
 	}
 
 	public int getIdFactura() {
@@ -45,5 +49,16 @@ public class Bill {
 	public void setMetodoDePago(String metodoDePago) {
 		this.metodoDePago = metodoDePago;
 	}
+
+	public Car getCarrito() {
+		return carrito;
+	}
+
+	public void setCarrito(Car carrito) {
+		this.carrito = carrito;
+	}
+
+	
+	
 
 }
