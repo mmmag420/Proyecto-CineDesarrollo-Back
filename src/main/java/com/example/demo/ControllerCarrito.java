@@ -1,76 +1,170 @@
 package com.example.demo;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import model.Bill;
 import model.Car;
 import model.Food;
 import model.Ticket;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/carrito")
+@CrossOrigin(origins = "*")
 @Tag(name = "Carrito", description = "Operaciones para gestionar el carrito de compras")
 public class ControllerCarrito {
 	
-	private final ServiceCarrito servicio;
+	private final ServiceCarrito service;
+	private final ObjectMapper mapper;
 
-    public ControllerCarrito(ServiceCarrito servicio) {
-        this.servicio = servicio;
+	@Autowired
+    public ControllerCarrito(ServiceCarrito service, ObjectMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
+    }
+	
+    // ===================== COMBOS =====================
+
+    @Operation(summary = "Agregar combo", description = "Body: { \"carrito\": Car, \"combo\": Food }")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = Car.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos (carrito/combo)")
+    })
+    @PostMapping("/combos")
+    public ResponseEntity<?> agregarCombo(@RequestBody Map<String, Object> body) {
+        Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
+        Food combo  = mapper.convertValue(body.get("combo"),   Food.class);
+
+        Car actualizado = service.agregarComboAlCarrito(carrito, combo);
+        return (actualizado != null)
+                ? ResponseEntity.ok(actualizado)
+                : ResponseEntity.badRequest().body("Datos inválidos (carrito/combo)");
     }
 
-    @Operation(summary = "Obtener carrito", description = "Devuelve el carrito con su precio total calculado")
-    @ApiResponse(responseCode = "200", description = "Carrito obtenido correctamente")
-    @GetMapping
-    public Car obtenerCarrito() {
-        return servicio.obtenerCarrito();
+    @Operation(summary = "Quitar una unidad de combo", description = "Body: { \"carrito\": Car, \"combo\": Food }")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = Car.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos (carrito/combo)")
+    })
+    @DeleteMapping("/combos")
+    public ResponseEntity<?> quitarUnaUnidadCombo(@RequestBody Map<String, Object> body) {
+        Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
+        Food combo  = mapper.convertValue(body.get("combo"),   Food.class);
+
+        Car actualizado = service.quitarUnaUnidadCombo(carrito, combo);
+        return (actualizado != null)
+                ? ResponseEntity.ok(actualizado)
+                : ResponseEntity.badRequest().body("Datos inválidos (carrito/combo)");
     }
 
-    @Operation(summary = "Listar combos del carrito", description = "Devuelve los combos actualmente en el carrito")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
-    @GetMapping("/combos")
-    public List<Food> listarCombos() {
-        return servicio.listarCombosDelCarrito();
+    @Operation(summary = "Listar combos del carrito", description = "Body: Car")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Food.class))))
+    @PostMapping("/combos/listar")
+    public ResponseEntity<?> listarCombos(@RequestBody Car carrito) {
+        return ResponseEntity.ok(service.listarCombosDelCarrito(carrito));
     }
 
-    @Operation(summary = "Agregar combo", description = "Agrega un combo al carrito por su id")
-    @ApiResponse(responseCode = "201", description = "Combo agregado correctamente")
-    @PostMapping("/combos/{idCombo}")
-    public void agregarCombo(@PathVariable int idCombo) {
-        servicio.agregarComboAlCarrito(idCombo);
+    // ===================== ENTRADAS =====================
+
+    @Operation(summary = "Agregar entrada", description = "Body: { \"carrito\": Car, \"ticket\": Ticket }")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = Car.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos (carrito/ticket)")
+    })
+    @PostMapping("/entradas")
+    public ResponseEntity<?> agregarEntrada(@RequestBody Map<String, Object> body) {
+        Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
+        Ticket t    = mapper.convertValue(body.get("ticket"),  Ticket.class);
+
+        Car actualizado = service.agregarEntradaAlCarrito(carrito, t);
+        return (actualizado != null)
+                ? ResponseEntity.ok(actualizado)
+                : ResponseEntity.badRequest().body("Datos inválidos (carrito/ticket)");
     }
 
-    @Operation(summary = "Eliminar combo", description = "Elimina todas las ocurrencias de un combo por id")
-    @ApiResponse(responseCode = "204", description = "Combo eliminado correctamente")
-    @DeleteMapping("/combos/{idCombo}")
-    public void eliminarCombo(@PathVariable int idCombo) {
-        servicio.eliminarComboDelCarrito(idCombo);
+    @Operation(summary = "Eliminar entrada", description = "Body: { \"carrito\": Car, \"ticket\": Ticket }")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado",
+                    content = @Content(schema = @Schema(implementation = Car.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos (carrito/ticket)")
+    })
+    @DeleteMapping("/entradas")
+    public ResponseEntity<?> eliminarEntrada(@RequestBody Map<String, Object> body) {
+        Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
+        Ticket t    = mapper.convertValue(body.get("ticket"),  Ticket.class);
+
+        Car actualizado = service.eliminarEntradaDelCarrito(carrito, t);
+        return (actualizado != null)
+                ? ResponseEntity.ok(actualizado)
+                : ResponseEntity.badRequest().body("Datos inválidos (carrito/ticket)");
     }
 
-    @Operation(summary = "Vaciar carrito", description = "Elimina todos los combos del carrito")
-    @ApiResponse(responseCode = "204", description = "Carrito vaciado correctamente")
-    @DeleteMapping
-    public void vaciar() {
-        servicio.vaciarCarrito();
+    @Operation(summary = "Listar entradas del carrito", description = "Body: Car")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Ticket.class))))
+    @PostMapping("/entradas/listar")
+    public ResponseEntity<?> listarEntradas(@RequestBody Car carrito) {
+        return ResponseEntity.ok(service.listarEntradasDelCarrito(carrito));
+    }
+
+    // ===================== VACÍAR / CHECKOUT =====================
+
+    @Operation(summary = "Vaciar carrito", description = "Body: Car")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Carrito vaciado"),
+            @ApiResponse(responseCode = "400", description = "Carrito inválido")
+    })
+    @PostMapping("/vaciar")
+    public ResponseEntity<?> vaciar(@RequestBody Car carrito) {
+        if (carrito == null) return ResponseEntity.badRequest().body("Carrito inválido");
+        service.vaciarCarrito(carrito);
+        return ResponseEntity.noContent().build(); // 204
+    }
+
+    @Operation(summary = "Checkout (adjuntar carrito a factura)",
+            description = "Body: { \"carrito\": Car, \"factura\": Bill }")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Factura con carrito adjunto",
+                    content = @Content(schema = @Schema(implementation = Bill.class))),
+            @ApiResponse(responseCode = "409", description = "La factura ya tiene carrito adjunto"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos (carrito/factura)")
+    })
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(@RequestBody Map<String, Object> body) {
+        Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
+        Bill factura = mapper.convertValue(body.get("factura"), Bill.class);
+
+        if (carrito == null || factura == null) {
+            return ResponseEntity.badRequest().body("Datos inválidos (carrito/factura)");
+        }
+        if (factura.getCarrito() != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("La factura ya tiene un carrito adjunto");
+        }
+
+        boolean ok = service.agregarCarritoEnFactura(carrito, factura);
+        if (!ok) {
+            return ResponseEntity.badRequest().body("No fue posible adjuntar el carrito a la factura");
+        }
+        return ResponseEntity.ok(factura);
     }
     
-    @Operation(summary = "Listar entradas del carrito")
-    @GetMapping("/entradas")
-    public List<Ticket> listarEntradas() {
-        return servicio.listarEntradasDelCarrito();
-    }
 
-    @Operation(summary = "Agregar entrada (numSala y numSilla) — $14.000 c/u")
-    @PostMapping("/entradas/{numSala}/{numSilla}")
-    public void agregarEntrada(@PathVariable int numSala, @PathVariable int numSilla) {
-        servicio.agregarEntradaAlCarrito(numSala, numSilla);
-    }
-
-    @Operation(summary = "Eliminar entrada por número de entrada")
-    @DeleteMapping("/entradas/{numEntrada}")
-    public void eliminarEntrada(@PathVariable int numEntrada) {
-        servicio.eliminarEntradaDelCarrito(numEntrada);
-    }
 
 }

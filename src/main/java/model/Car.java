@@ -10,6 +10,9 @@ public class Car {
 	private boolean estado;
 	private double precioFinal;
 	
+	public Car() {	
+	}
+	
 	public Car(int idCarrito, ArrayList<Ticket> entradas, ArrayList<Food> combos, boolean estado, double precioFinal) {
 		this.idCarrito = idCarrito;
 		this.entradas = entradas;

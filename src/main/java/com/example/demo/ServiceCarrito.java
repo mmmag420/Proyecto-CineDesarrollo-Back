@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import model.Bill;
 import model.Car;
 import model.Food;
 import model.Ticket;
@@ -24,72 +25,89 @@ public class ServiceCarrito {
         this.repoCarrito = repoCarrito;
         this.repoCombo = repoCombo;
     }
-
-    public List<Food> listarCombosDelCarrito() {
-        return repoCarrito.obtenerCombos();
-    }
-
-    public void agregarComboAlCarrito(int idCombo) {
-        Food f = repoCombo.findById(idCombo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Combo no encontrado"));
-        repoCarrito.agregarCombo(f);
-        Car c = repoCarrito.obtenerCarrito();
-        recalcularTotal(c);
-        repoCarrito.guardar(c);
-    }
-
-    public void eliminarComboDelCarrito(int idCombo) {
-        repoCarrito.eliminarComboPorId(idCombo);
-        Car c = repoCarrito.obtenerCarrito();
-        recalcularTotal(c);
-        repoCarrito.guardar(c);
+    
+    //guarda el carrito en su respectiva clase factura
+    public boolean agregarCarritoEnFactura(Car carrito, Bill factura) {
+    	if(carrito == null || factura == null) return false;
+    	if(factura.getCarrito() != null) {
+    		return false;
+    	}
+    	return repoCarrito.guardarCarroEnFactura(factura, carrito);
     }
     
-    public List<Ticket> listarEntradasDelCarrito() {
-        return repoCarrito.obtenerEntradas();
-    }
-
-    public void agregarEntradaAlCarrito(int numSala, int numSilla) {
-        if (numSala <= 0 || numSilla <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sala o silla inválida");
-        }
-
-        Chair sillaSeleccionada = new Chair(numSilla, true);
-        Chair[] sillas = new Chair[]{ sillaSeleccionada };
-        Hall hallMinimo = new Hall(numSala, null, "", "", "", sillas);
+    
+ 
+    //agrega un combo al carrito y actualiza el precio
+	public Car agregarComboAlCarrito(Car carrito, Food combo) {
+		if(carrito == null || combo == null) {
+			return null;
+		}
+		repoCarrito.agregarComboAlCarrito(carrito, combo);
+		recalcularTotal(carrito);
+		return carrito;
+	}
+	
+	//quita una unidad de un combo en el carrito
+    public Car quitarUnaUnidadCombo(Car carrito, Food combo) {
         
-        Ticket t = new Ticket(SEQ_ENTRADA.getAndIncrement(), PRECIO_ENTRADA, hallMinimo);
-
-        repoCarrito.agregarEntrada(t);
-        recalcularYGuardar();
+        if(carrito == null || combo == null) {
+        	return null;
+        }
+        carrito.getCombos().remove(combo); 
+        recalcularTotal(carrito);
+        return carrito;  
+    }
+    
+    //agrega entradas al carrito y calcula su precio
+    public Car agregarEntradaAlCarrito(Car carrito, Ticket t) {
+        if (carrito == null || t == null || t.getSala() == null) {
+            return null;
+        }    	
+        
+    	if(t.getNumEntrada() <= 0 || t.getSala().getNumSala() <= 0) {
+    		return null;
+    	}
+    	  	
+    	repoCarrito.agregarEntradasAlCarrito(carrito, t);
+    	recalcularTotal(carrito);
+    	return carrito;
+    }
+    
+    
+    public Car eliminarEntradaDelCarrito(Car carrito, Ticket t) {
+    	if(carrito == null || t == null) {
+    		return null;
+    	}
+    	carrito.getEntradas().remove(t);
+    	recalcularTotal(carrito);
+    	return carrito;
+    }
+    
+    public void vaciarCarrito(Car carrito) {
+        repoCarrito.vaciarCarrito(carrito);
     }
 
-    public void eliminarEntradaDelCarrito(int numEntrada) {
-        repoCarrito.eliminarEntradaPorNumero(numEntrada);
-        recalcularYGuardar();
-    }
 
-    public Car obtenerCarrito() {
-        Car c = repoCarrito.obtenerCarrito();
-        recalcularTotal(c);
-        return c;
-    }
 
-    public void vaciarCarrito() {
-        repoCarrito.vaciar();
-    }
-
-    private void recalcularYGuardar() {
+    /*private void recalcularYGuardar() {
         Car c = repoCarrito.obtenerCarrito();
         recalcularTotal(c);
         repoCarrito.guardar(c);
-    }
+    }*/
 
-    private void recalcularTotal(Car c) {
+    private void recalcularTotal(Car carrito) {
         double total = 0.0;
-        for (Food f : c.getCombos()) total += f.getPrecio();
-        for (Ticket t : c.getEntradas()) total += t.getPrecioEntrada();
-        c.setPrecioFinal(total);
+        for (Food f : carrito.getCombos()) total += f.getPrecio();
+        for (Ticket t : carrito.getEntradas()) total += t.getPrecioEntrada();
+        carrito.setPrecioFinal(total);
+    }
+    
+    public List<Food> listarCombosDelCarrito(Car carrito) {
+        return repoCarrito.obtenerCombosDelCarrito(carrito);
+    }    
+    
+    public List<Ticket> listarEntradasDelCarrito(Car carrito) {
+        return repoCarrito.obtenerEntradasDelCarrito(carrito);
     }
 
 }
