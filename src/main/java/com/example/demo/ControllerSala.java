@@ -1,15 +1,29 @@
 package com.example.demo;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import model.Chair;
 import model.Hall;
+import model.Hall.Dia;
+import model.Movie;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -20,126 +34,200 @@ public class ControllerSala {
 
     private final ServiceSala serviceSala;
     private final ServiceMovie serviceMovie;
+
     
     @Autowired
 	public ControllerSala(ServiceSala serviceSala, ServiceMovie serviceMovie) {
 		this.serviceSala = serviceSala;
 		this.serviceMovie = serviceMovie;
+		
 	}
 	
-	 @Operation(summary = "Sembrar semana (opcional)", description = "Crea la grilla de funciones de 7 días para 3 salas fijas usando las películas ya cargadas en ServiceMovie (ids 1,2,3).")
-	 @ApiResponses({
-	     @ApiResponse(responseCode = "200", description = "Semana sembrada"),
-	     @ApiResponse(responseCode = "404", description = "Alguna película id=1|2|3 no existe")
-	 })
-	 @PostMapping("/sembrar")
-    public ResponseEntity<?> sembrarSemana() {
-        var m1 = serviceMovie.findById("1");
-        var m2 = serviceMovie.findById("2");
-        var m3 = serviceMovie.findById("3");
-        if (m1 == null || m2 == null || m3 == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Falta alguna película id=1|2|3 en ServiceMovie");
-        }
-        serviceSala.sembrarSemana(m1, m2, m3);
-        return ResponseEntity.ok("Semana sembrada");
+  
+    // -----------------------
+    // 1) Cartelera / Listados
+    // -----------------------
+
+    @Operation(summary = "Cartelera por día", description = "Devuelve todas las funciones (todas las salas) del día indicado.")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente")
+    @GetMapping("/cartelera/{dia}")
+    public ResponseEntity<List<Hall>> carteleraPorDia(
+            @Parameter(description = "Día de la semana (LUNES..DOMINGO)", example = "LUNES")
+            @PathVariable Dia dia) {
+        List<Hall> out = serviceSala.listarTodas().stream()
+                .filter(h -> h.getDiaPelicula() == dia)
+                .sorted(Comparator.comparing(Hall::getNumSala).thenComparing(Hall::getHoraInicio))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(out);
     }
-	 
 
-	    @Operation(summary = "Listar funciones por sala y día", description = "Retorna la lista de funciones (Hall) para una sala en un día (ISO yyyy-MM-dd).")
-	    @ApiResponses({
-	        @ApiResponse(responseCode = "200", description = "Listado ok")
-	    })
-	    @GetMapping("/{sala}/funciones")
-	    public ResponseEntity<List<Hall>> listarFunciones(
-	            @PathVariable int sala,
-	            @io.swagger.v3.oas.annotations.Parameter(description = "Día en formato ISO, ej: 2025-10-07", example = "2025-10-07")
-	            @RequestParam String dia) {
+    @Operation(summary = "Funciones de una sala por día", description = "Devuelve las funciones de la sala indicada filtradas por día.")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente")
+    @GetMapping("/{idSala}/funciones")
+    public ResponseEntity<List<Hall>> funcionesPorSalaYDia(
+            @Parameter(description = "Número de sala", example = "1") @PathVariable int idSala,
+            @Parameter(description = "Día de la semana", example = "MARTES") @RequestParam Dia dia) {
+        List<Hall> out = serviceSala.listarPorSalaYDia(idSala, dia).stream()
+                .sorted(Comparator.comparing(Hall::getHoraInicio))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(out);
+    }
 
-	        return ResponseEntity.ok(serviceSala.listarFunciones(sala, dia));
-	    }
-	    
-	    @Operation(summary = "Detalle de una función",
-	               description = "Obtiene la función (Hall) por sala, día y hora de inicio.")
-	    @ApiResponses({
-	        @ApiResponse(responseCode = "200", description = "Función encontrada"),
-	        @ApiResponse(responseCode = "404", description = "No existe la función")
-	    })
-	    @GetMapping("/{sala}/funciones/{dia}/{hora}")
-	    public ResponseEntity<?> detalleFuncion(
-	            @PathVariable int sala,
-	            @PathVariable String dia,
-	            @PathVariable String hora) {
+    @Operation(summary = "Obtener función", description = "Consulta una función por sala + día + hora de inicio.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Función encontrada"),
+        @ApiResponse(responseCode = "404", description = "Función no encontrada")
+    })
+    @GetMapping("/funcion")
+    public ResponseEntity<?> obtenerFuncion(
+            @Parameter(description = "Número de sala", example = "1") @RequestParam int sala,
+            @Parameter(description = "Día de la semana", example = "VIERNES") @RequestParam Dia dia,
+            @Parameter(description = "Hora de inicio (HH:mm)", example = "16:50")
+            @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime horaInicio) {
+        Hall h = serviceSala.buscarPorDiaYHora(sala, dia, horaInicio);
+        return (h == null) ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada") : ResponseEntity.ok(h);
+    }
 
-	        var hall = serviceSala.detalleFuncion(sala, dia, hora);
-	        if (hall == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
-	        return ResponseEntity.ok(hall);
-	    }
-	    
+    // -----------------------
+    // 2) Sillas / Disponibilidad
+    // -----------------------
 
-	    
-	    @Operation(summary = "Ocupación de sillas", description = "Devuelve un arreglo boolean[] con la ocupación de sillas para la función.")
-	    @ApiResponses({
-	        @ApiResponse(responseCode = "200", description = "Ocupación retornada"),
-	        @ApiResponse(responseCode = "404", description = "No existe la función")
-	    })
-	    @GetMapping("/{sala}/ocupacion")
-	    public ResponseEntity<?> ocupacion(
-	            @io.swagger.v3.oas.annotations.Parameter(description = "Número de sala", example = "1")
-	            @PathVariable int sala,
-	            @io.swagger.v3.oas.annotations.Parameter(description = "Día ISO", example = "2025-10-07")
-	            @RequestParam String dia,
-	            @io.swagger.v3.oas.annotations.Parameter(description = "Hora inicio HH:mm", example = "16:50")
-	            @RequestParam String hora) {
+    @Operation(summary = "Estado de sillas", description = "Devuelve el estado de todas las sillas (true=ocupada, false=libre) para una función.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Estado obtenido"),
+        @ApiResponse(responseCode = "404", description = "Función no encontrada")
+    })
+    @GetMapping("/funcion/sillas")
+    public ResponseEntity<?> estadoSillas(
+            @Parameter(description = "Número de sala", example = "1") @RequestParam int sala,
+            @Parameter(description = "Día de la semana", example = "SABADO") @RequestParam Dia dia,
+            @Parameter(description = "Hora de inicio (HH:mm)", example = "21:30")
+            @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime horaInicio) {
+        Hall h = serviceSala.buscarPorDiaYHora(sala, dia, horaInicio);
+        if (h == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
+        boolean[] estado = serviceSala.estadoSillas(h);
+        return ResponseEntity.ok(estado);
+    }
 
-	        var snapshot = serviceSala.verSiEstaOcupada(sala, dia, hora);
-	        if (snapshot == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
-	        return ResponseEntity.ok(snapshot);
-	    }
-	    
-	    @PostMapping("/{sala}/reservas")
-	    @Operation(summary = "Reservar una silla", description = "Reserva una silla (numSilla) en una función (sala, día, hora).")
-	    @ApiResponses({
-	        @ApiResponse(responseCode = "201", description = "Reserva creada"),
-	        @ApiResponse(responseCode = "404", description = "Función no encontrada"),
-	        @ApiResponse(responseCode = "409", description = "Silla ya ocupada"),
-	        @ApiResponse(responseCode = "400", description = "Datos inválidos")
-	    })
-	    
-	    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{ \"dia\": \"2025-10-07\", \"hora\": \"16:50\", \"silla\": 30 }")))	    
-	    public ResponseEntity<?> reservar(
-	            @PathVariable int sala,
-	            @org.springframework.web.bind.annotation.RequestBody Map<String, Object> body // <-- ESTA es la importante
-	    ) {
-	        String dia = (String) body.get("dia");
-	        String hora = (String) body.get("hora");
-	        Integer silla = (body.get("silla") instanceof Integer) ? (Integer) body.get("silla") : null;
+    // -----------------------
+    // 3) Reservas / Cancelaciones
+    // -----------------------
 
-	        if (dia == null || hora == null || silla == null) {
-	            return ResponseEntity.badRequest().body("Faltan campos: dia, hora, silla");
-	        }
+    @Operation(summary = "Reservar sillas", description = "Reserva una o varias sillas para una función. Falla si alguna silla ya está ocupada.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Reserva exitosa"),
+        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+        @ApiResponse(responseCode = "404", description = "Función no encontrada"),
+        @ApiResponse(responseCode = "409", description = "Alguna silla no existe o ya está ocupada")
+    })
+    @PostMapping("/funcion/reservar")
+    public ResponseEntity<?> reservar(@RequestBody Map<String, Object> body) {
+        try {
+            int sala = (Integer) body.get("sala");
+            Dia dia = Dia.valueOf(((String) body.get("dia")).toUpperCase());
+            LocalTime horaInicio = LocalTime.parse((String) body.get("horaInicio"));
+            @SuppressWarnings("unchecked")
+            List<Integer> asientos = (List<Integer>) body.get("asientos");
 
-	        if (serviceSala.detalleFuncion(sala, dia, hora) == null) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
-	        }
+            if (asientos == null || asientos.isEmpty()) {
+                return ResponseEntity.badRequest().body("Debes enviar 'asientos'");
+            }
 
-	        boolean ok = serviceSala.reservarSilla(sala, dia, hora, silla);
-	        if (!ok) {
-	            return ResponseEntity.status(HttpStatus.CONFLICT).body("Silla ya ocupada o inválida");
-	        }
+            Hall h = serviceSala.buscarPorDiaYHora(sala, dia, horaInicio);
+            if (h == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
 
-	        return ResponseEntity.status(HttpStatus.CREATED).build();
-	    }
-	    
-	    
-		    @Operation(summary = "Funciones por película y día",
-		            description = "Devuelve funciones (sala + horarios) para la película indicada en el día dado.")
-		 @ApiResponses(@ApiResponse(responseCode = "200", description = "OK"))
-		 @GetMapping("/funciones-por-pelicula")
-		 public ResponseEntity<List<Hall>> funcionesPorPelicula(
-		         @RequestParam String peliculaId,
-		         @RequestParam String dia) {
-		     return ResponseEntity.ok(serviceSala.funcionesPorPelicula(peliculaId, dia));
-		 }
+            // Reservar en lote (todo-o-nada)
+            for (int a : asientos) {
+                boolean ok = serviceSala.reservarSilla(h, a);
+                if (!ok) {
+                    // revertir las previas
+                    for (int b : asientos) {
+                        if (b == a) break;
+                        serviceSala.cancelarSilla(h, b);
+                    }
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Alguna silla no existe o ya está ocupada");
+                }
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Formato inválido del cuerpo: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Cancelar silla", description = "Libera una silla previamente reservada en una función.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Cancelación exitosa"),
+        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+        @ApiResponse(responseCode = "404", description = "Función no encontrada"),
+        @ApiResponse(responseCode = "409", description = "La silla no existe o ya estaba libre")
+    })
+    @PostMapping("/funcion/cancelar")
+    public ResponseEntity<?> cancelar(@RequestBody Map<String, Object> body) {
+        try {
+            int sala = (Integer) body.get("sala");
+            Dia dia = Dia.valueOf(((String) body.get("dia")).toUpperCase());
+            LocalTime horaInicio = LocalTime.parse((String) body.get("horaInicio"));
+            int asiento = (Integer) body.get("asiento");
+
+            Hall h = serviceSala.buscarPorDiaYHora(sala, dia, horaInicio);
+            if (h == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
+
+            boolean ok = serviceSala.cancelarSilla(h, asiento);
+            if (!ok) return ResponseEntity.status(HttpStatus.CONFLICT).body("La silla no existe o ya estaba libre");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Formato inválido del cuerpo: " + e.getMessage());
+        }
+    }
+
+    // -----------------------
+    // 4) Administración / Limpieza
+    // -----------------------
+
+    @Operation(summary = "Limpiar funciones vencidas", description = "Libera sillas de funciones que ya terminaron (modelo semanal).")
+    @ApiResponse(responseCode = "200", description = "Limpieza ejecutada")
+    @PostMapping("/funciones/limpiar-vencidas")
+    public ResponseEntity<Map<String, Object>> limpiarVencidas() {
+        int funciones = serviceSala.limpiarFuncionesVencidas();
+        return ResponseEntity.ok(Map.of("funcionesLimpias", funciones));
+    }
+
+    @Operation(summary = "Crear función", description = "Crea una función (sala + día + hora) para una película existente.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Función creada"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "409", description = "La función ya existe (sala+dia+hora)")
+    })
+    @PostMapping("/funcion")
+    public ResponseEntity<?> crearFuncion(@RequestBody Map<String, Object> body) {
+        try {
+            int sala = (Integer) body.get("sala");
+            String movieId = (String) body.get("movieId");
+            Dia dia = Dia.valueOf(((String) body.get("dia")).toUpperCase());
+            LocalTime horaInicio = LocalTime.parse((String) body.get("horaInicio"));
+            LocalTime horaFin = LocalTime.parse((String) body.get("horaFin"));
+            int capacidad = (Integer) body.get("capacidad");
+
+            Movie movie = serviceMovie.findById(movieId);
+            if (movie == null) return ResponseEntity.badRequest().body("Película no válida");
+
+            Hall h = new Hall(sala, movie, dia, horaInicio, horaFin, generarSillas(capacidad));
+            boolean ok = serviceSala.guardarSala(h);
+            if (!ok) return ResponseEntity.status(HttpStatus.CONFLICT).body("La función ya existe (sala+dia+hora)");
+            return ResponseEntity.status(HttpStatus.CREATED).body(h);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Formato inválido del cuerpo: " + e.getMessage());
+        }
+    }
+
+    // -----------------------
+    // Helpers internos (simples)
+    // -----------------------
+
+    private Chair[] generarSillas(int cantidad) {
+        Chair[] sillas = new Chair[cantidad];
+        for (int i = 0; i < cantidad; i++) sillas[i] = new Chair(i + 1, false);
+        return sillas;
+    }
 	
 }
