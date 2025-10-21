@@ -3,112 +3,234 @@ package com.example.demo;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import model.Chair;
 import model.Hall;
 import model.Movie;
+import model.Hall.Dia;
 
 @Service
 public class ServiceSala {
 
 	
-	private final RepositorySala repo;
+	private final RepositorySala repoSala;
 	private final ServiceMovie serviceMovie;
-	private final int TOTAL_SILLAS = 39;
 	
-    private final Map<DayOfWeek, String[]> horariosSemana = Map.of(
-            DayOfWeek.MONDAY,    new String[]{"16:50","19:10","21:30"},
-            DayOfWeek.TUESDAY,   new String[]{"16:50","19:10","21:30"},
-            DayOfWeek.WEDNESDAY, new String[]{"16:50","19:10","21:30"},
-            DayOfWeek.THURSDAY,  new String[]{"16:50","19:10","21:30"},
-            DayOfWeek.FRIDAY,    new String[]{"16:50","19:10","21:30"},
-            DayOfWeek.SATURDAY,  new String[]{"14:30","16:50","19:10","21:30"},
-            DayOfWeek.SUNDAY,    new String[]{"14:30","16:50","19:10","21:30"}
-        );
-	
-	
-	public ServiceSala(RepositorySala repo, ServiceMovie serviceMovie) {
-		this.repo = repo;
+	public ServiceSala(RepositorySala repoSala, ServiceMovie serviceMovie) {
+		this.repoSala = repoSala;
 		this.serviceMovie = serviceMovie;	
+		iniciarBaseQuemada();
+	}
+	
+	public void iniciarBaseQuemada() {
+		
+		Movie nobody2 = serviceMovie.findById("1");
+		Movie conjuro2 = serviceMovie.findById("2");
+		Movie cuatrofantasticos = serviceMovie.findById("3");
+		
+        var salasConfig = Map.of(
+                1, new SalaConfig(nobody2, 39),
+                2, new SalaConfig(conjuro2,   39),
+                3, new SalaConfig(cuatrofantasticos,  39)
+            );
+        
+        
+        LocalTime[] horarios = {
+                LocalTime.of(16, 50),
+                LocalTime.of(21, 30)                
+            };
+        
+        //definimos los dos horarios diaros de funciones 4:50 y 9:30 con localtime
+        for (Map.Entry<Integer, SalaConfig> entry : salasConfig.entrySet()) {
+        	
+            int numSala = entry.getKey();
+            Movie movie = entry.getValue().movie();
+            int capacidad = entry.getValue().capacidad();
+            
+            for (Hall.Dia dia : Hall.Dia.values()) {
+                for (LocalTime hi : horarios) {
+                    LocalTime hf = calcularHoraFin(hi, movie, 15); 
+                    Hall hall = new Hall(numSala, movie, dia, hi, hf, generarSillas(capacidad));
+
+                   
+                    boolean ok = guardarSala(hall);
+                    
+                }
+            }
+		
+        }
+
 	}
 
-    public void sembrarSemana(Movie peliSala1, Movie peliSala2, Movie peliSala3) {
-        LocalDate base = LocalDate.now(); 
-        int durSala1 = parseDuracionMinutos(peliSala1.getDuracion()); 
-        int durSala2 = parseDuracionMinutos(peliSala2.getDuracion());
-        int durSala3 = parseDuracionMinutos(peliSala3.getDuracion());
+	//GUARDA LA SALA
+	public boolean guardarSala(Hall sala) {
+		Hall encontrado = repoSala.buscarPorDiaYHora(sala.getNumSala(), sala.getDiaPelicula(), sala.getHoraInicio());
+		if(encontrado != null) {
+			return false;
+		}
+		return repoSala.guardarSala(sala);
+	}
+	
+	//BUSCA SALA EN TODAS
+	public Hall buscarSalaGlobal(int idSala) {
+		Hall encontrado = repoSala.buscarSalaGlobal(idSala);
+		if(encontrado == null) {
+			return null;		
+		}
+		return encontrado;
+	}
 
-        for (int d = 0; d < 7; d++) {
-            LocalDate dia = base.plusDays(d);
-            String diaISO = dia.toString();
-            String[] horas = horariosSemana.getOrDefault(dia.getDayOfWeek(), new String[0]);
+	//BUSCA LA SALA POR DIA
+	public Hall buscarPorDia(int idSala, Dia diaPelicula) {
+		Hall encontrado = repoSala.buscarPorDia(idSala, diaPelicula);
+		if(encontrado == null) {
+			return null;
+		}
+		return encontrado;
+	}
+	
+	//BUSCA LA SALA POR DIA Y HORA
+	public Hall buscarPorDiaYHora(int idSala, Dia diaPelicula, LocalTime  horaInicio) {
+		Hall encontrado = repoSala.buscarPorDiaYHora(idSala, diaPelicula, horaInicio);
+		if(encontrado == null) {
+			return null;
+		}
+		return encontrado;
+	}
+	
+	//RESERVA SILLA EN LA SALA
+	public boolean reservarSilla(Hall sala, int numSilla) {
+		return repoSala.reservarSilla(sala, numSilla);
+	}
+	
+	//CANCELAR SILLA POR SI LA QUITA DEL CARRITO
+	public boolean cancelarSilla(Hall sala, int numSilla) {
+		return repoSala.cancelarSilla(sala, numSilla);
+	}
+	
+	//DEVUELVE EL ESTADO DE LAS SILLAS DE LA SALA PARA MOSTRARLAS EN LA VENTANA
+	public boolean[] estadoSillas(Hall sala) {
+		  return repoSala.estadoSillas(sala);
+	}
+	
+	//LISTA LAS SALAS POR DIA 
+	public List<Hall> listarPorSalaYDia(int idSala, Hall.Dia dia) {
+	    return repoSala.listarPorSalaYDia(idSala, dia);
+	}
+	
+	//LISTA TODAS LAS SALAS
+	public List<Hall> listarTodas() {
+		return repoSala.listarTodas();
+	}
+	
 
-            crearFuncionesDelDia(1, peliSala1, diaISO, horas, durSala1);
-            crearFuncionesDelDia(2, peliSala2, diaISO, horas, durSala2);
-            crearFuncionesDelDia(3, peliSala3, diaISO, horas, durSala3);
+	// GENERA SILLAS EN FALSE PARA CADA SALA
+    private Chair[] generarSillas(int cantidad) {
+        Chair[] sillas = new Chair[cantidad];
+        for (int i = 0; i < sillas.length; i++) {
+        
+            sillas[i] = new Chair(i + 1, false); 
+        }
+        return sillas;
+    }
+  
+    
+    public int limpiarFuncionesVencidas() {
+        return limpiarFuncionesVencidasHasta(java.time.LocalDateTime.now());
+    }
+
+    //LIMPIA LAS SILLAS DE LAS SALAS SI YA PASO EL DIA
+    public int limpiarFuncionesVencidasHasta(java.time.LocalDateTime ahora) {
+        int count = 0;
+        var hoy = ahora.getDayOfWeek();        // LUNES..DOMINGO
+        var horaActual = ahora.toLocalTime();
+
+        for (Hall h : repoSala.listarTodas()) {
+            java.time.DayOfWeek dow = toDow(h.getDiaPelicula());
+            boolean vencida = false;
+
+            if (dow.getValue() < hoy.getValue()) {
+                // día pasó esta semana
+                vencida = true;
+            } else if (dow == hoy && h.getHoraFin().isBefore(horaActual)) {
+                // es hoy y ya terminó
+                vencida = true;
+            }
+
+            if (vencida) {
+                for (Chair c : h.getSillas()) c.setEstado(false);
+                count++;
+            }
+        }
+        return count;
+    }
+    
+
+
+    
+    private record SalaConfig(Movie movie, int capacidad) {}
+
+    // CALCULAMOS A QUE HORA SE ESTA ACABANDO LA PELICULA
+    private LocalTime calcularHoraFin(LocalTime horaInicio, Movie movie, int limpiezaMin) {
+        int duracionMin = convertirDuracionAMinutos(movie.getDuracion());
+        return horaInicio.plusMinutes(duracionMin + limpiezaMin);
+    }
+    
+  
+    
+    
+    //CONVERTIMOS LA DURACION DE LAS PELCICULAS QUE ESTAN EN STRING A MINUTOS PARA PODER COMPARAR EN OTROS METODOS
+    private int convertirDuracionAMinutos(String duracionStr) {
+        // Elimina espacios extra y convierte todo a minúsculas
+        duracionStr = duracionStr.trim().toLowerCase();
+
+        int horas = 0;
+        int minutos = 0;
+
+        // Ejemplo de formato: "1h 55m" o "2h10m"
+        if (duracionStr.contains("h")) {
+            String[] partes = duracionStr.split("h");
+            try {
+                horas = Integer.parseInt(partes[0].trim());
+            } catch (NumberFormatException e) {
+                horas = 0;
+            }
+
+            if (partes.length > 1 && partes[1].contains("m")) {
+                String minStr = partes[1].replace("m", "").trim();
+                if (!minStr.isEmpty()) {
+                    try {
+                        minutos = Integer.parseInt(minStr);
+                    } catch (NumberFormatException e) {
+                        minutos = 0;
+                    }
+                }
+            }
+        } else if (duracionStr.contains("m")) {
+            // Solo minutos, ejemplo: "95m"
+            String minStr = duracionStr.replace("m", "").trim();
+            minutos = Integer.parseInt(minStr);
+        }
+
+        return horas * 60 + minutos;
+    }
+    
+    // CASTEAR EL ENUM DIAS EN DAYOFWEEK
+    
+    private java.time.DayOfWeek toDow(Hall.Dia d) {
+        switch (d) {
+            case LUNES: return java.time.DayOfWeek.MONDAY;
+            case MARTES: return java.time.DayOfWeek.TUESDAY;
+            case MIERCOLES: return java.time.DayOfWeek.WEDNESDAY;
+            case JUEVES: return java.time.DayOfWeek.THURSDAY;
+            case VIERNES: return java.time.DayOfWeek.FRIDAY;
+            case SABADO: return java.time.DayOfWeek.SATURDAY;
+            case DOMINGO: return java.time.DayOfWeek.SUNDAY;
+            default: throw new IllegalStateException();
         }
     }
-      
-    public List<Hall> listarFunciones(int sala, String diaISO) {
-        return repo.listarPorSalaYDia(sala, diaISO);
-    }
-    
-    public boolean reservarSilla(int sala, String diaISO, String horaInicio, int numSilla) {
-        return repo.reservarSilla(sala, diaISO, horaInicio, numSilla);
-    }
-    
-    public Hall detalleFuncion(int sala, String diaISO, String horaInicio) {
-        return repo.buscarFuncion(sala, diaISO, horaInicio);
-    }
-	
-    public boolean[] verSiEstaOcupada(int sala, String diaISO, String horaInicio) {
-        Hall salaEx = repo.buscarFuncion(sala, diaISO, horaInicio);
-        if (salaEx == null) return null;
-        boolean[] ocup = new boolean[salaEx.getSillas().length];
-        for (int i = 0; i < salaEx.getSillas().length; i++) ocup[i] = salaEx.getSillas()[i].isEstado();
-        return ocup;
-    }
-	
-		
-    private void crearFuncionesDelDia(int sala, Movie movie, String diaISO, String[] horas, int durMin) {
-        for (String hIni : horas) {
-            LocalTime ini = LocalTime.parse(hIni);
-            LocalTime fin = ini.plusMinutes(durMin);
-            repo.crearFuncion(new Hall(
-                    sala,
-                    movie,
-                    diaISO,
-                    ini.toString(),
-                    fin.toString(),
-                    crearSillasLibres(TOTAL_SILLAS)
-            ));
-        }
-    }
-    
-    private Chair[] crearSillasLibres(int total) {
-        Chair[] arr = new Chair[total];
-        for (int i = 0; i < total; i++) arr[i] = new Chair(i + 1, false);
-        return arr;
-    }
-    
-    private int parseDuracionMinutos(String dur) {
-        try {
-            int hIndex = dur.indexOf('h');
-            int mIndex = dur.indexOf('m');
-            int horas = hIndex > 0 ? Integer.parseInt(dur.substring(0, hIndex).trim()) : 0;
-            int mins  = (mIndex > hIndex) ? Integer.parseInt(dur.substring(hIndex + 1, mIndex).trim()) : 0;
-            return horas * 60 + mins;
-        } catch (Exception e) {
-            return 120; 
-        }
-    }
-    
-    public List<Hall> funcionesPorPelicula(String peliculaId, String diaISO) {
-        return repo.listarPorPeliculaYDia(peliculaId, diaISO);
-    }
 
-	
-	
 }

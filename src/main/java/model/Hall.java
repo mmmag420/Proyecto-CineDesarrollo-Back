@@ -1,15 +1,21 @@
 package model;
 
+import java.time.LocalTime;
+
 public class Hall {
+	
+	public enum Dia {
+	    LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, SABADO, DOMINGO
+	}
 	
 	private int numSala;
 	private Movie movie;
-	private String diaPelicula;
-	private String horaInicio;
-	private String horaFin;
+	private Dia diaPelicula;
+	private LocalTime horaInicio;
+	private LocalTime horaFin;
 	private Chair[] sillas;
 	
-	public Hall(int numSala, Movie movie, String diaPelicula, String horaInicio, String horaFin, Chair[] sillas) {
+	public Hall(int numSala, Movie movie, Dia diaPelicula, LocalTime horaInicio, LocalTime horaFin, Chair[] sillas) {
 		this.numSala = numSala;
 		this.movie = movie;
 		this.diaPelicula = diaPelicula;
@@ -30,28 +36,32 @@ public class Hall {
 		this.movie = movie;
 	}
 
-	public String getDiaPelicula() {
+	
+
+	public Dia getDiaPelicula() {
 		return diaPelicula;
 	}
 
-	public void setDiaPelicula(String diaPelicula) {
+	public void setDiaPelicula(Dia diaPelicula) {
 		this.diaPelicula = diaPelicula;
 	}
 
-	public String getHoraInicio() {
+	
+
+	public LocalTime getHoraInicio() {
 		return horaInicio;
 	}
 
-	public void setHoraInicio(String horaInicio) {
+	public void setHoraInicio(LocalTime horaInicio) {
 		this.horaInicio = horaInicio;
 	}
 
-	public String getHoraFin() {
+	public LocalTime getHoraFin() {
 		return horaFin;
 	}
 
-	public void setHoraFin(String horsFin) {
-		this.horaFin = horsFin;
+	public void setHoraFin(LocalTime horaFin) {
+		this.horaFin = horaFin;
 	}
 
 	public Chair[] getSillas() {
