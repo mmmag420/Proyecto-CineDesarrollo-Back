@@ -9,6 +9,8 @@ import model.Chair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,13 +51,22 @@ public class ServiceCarrito {
 	
 	//quita una unidad de un combo en el carrito
     public Car quitarUnaUnidadCombo(Car carrito, Food combo) {
-        
-        if(carrito == null || combo == null) {
-        	return null;
+        if (carrito == null || combo == null) return null;
+
+        Integer id = combo.getIdCombo();
+        List<Food> combos = carrito.getCombos();
+        if (combos == null || combos.isEmpty()) return carrito;
+
+        for (Iterator<Food> it = combos.iterator(); it.hasNext();) {
+            Food c = it.next();
+            if (c != null && java.util.Objects.equals(c.getIdCombo(), id)) {
+                it.remove();             
+                recalcularTotal(carrito);   
+                return carrito;
+            }
         }
-        carrito.getCombos().remove(combo); 
-        recalcularTotal(carrito);
-        return carrito;  
+
+        return carrito;
     }
     
     //agrega entradas al carrito y calcula su precio
@@ -75,12 +86,32 @@ public class ServiceCarrito {
     
     
     public Car eliminarEntradaDelCarrito(Car carrito, Ticket t) {
-    	if(carrito == null || t == null) {
-    		return null;
-    	}
-    	carrito.getEntradas().remove(t);
-    	recalcularTotal(carrito);
-    	return carrito;
+        if (carrito == null || t == null) return null;
+
+        Integer numEntrada = t.getNumEntrada();
+        Hall funcion = t.getSala();
+
+        List<Ticket> entradas = carrito.getEntradas();
+        if (entradas == null || entradas.isEmpty()) return carrito;
+
+        for (Iterator<Ticket> it = entradas.iterator(); it.hasNext();) {
+            Ticket cur = it.next();
+            if (cur != null
+                    && java.util.Objects.equals(cur.getNumEntrada(), numEntrada)
+                    && mismaFuncion(cur.getSala(), funcion)) {
+                it.remove();
+                recalcularTotal(carrito);
+                return carrito;
+            }
+        }
+        return carrito;
+    }
+    
+    private boolean mismaFuncion(Hall a, Hall b) {
+        if (a == null || b == null) return false;
+        return a.getNumSala() == b.getNumSala()
+            && a.getDiaPelicula() == b.getDiaPelicula()
+            && java.util.Objects.equals(a.getHoraInicio(), b.getHoraInicio());
     }
     
     public void vaciarCarrito(Car carrito) {
