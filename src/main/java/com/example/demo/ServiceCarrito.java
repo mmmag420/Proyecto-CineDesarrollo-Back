@@ -89,19 +89,29 @@ public class ServiceCarrito {
         if (carrito == null || t == null) return null;
 
         Integer numEntrada = t.getNumEntrada();
+        Hall funcion = t.getSala();
+
         List<Ticket> entradas = carrito.getEntradas();
         if (entradas == null || entradas.isEmpty()) return carrito;
 
         for (Iterator<Ticket> it = entradas.iterator(); it.hasNext();) {
-            Ticket ticket = it.next();
-            if (t != null && java.util.Objects.equals(t.getNumEntrada(), numEntrada)) {
-                it.remove();                 // ❗ Elimina solo la primera coincidencia
-                recalcularTotal(carrito);    // Actualiza el total
+            Ticket cur = it.next();
+            if (cur != null
+                    && java.util.Objects.equals(cur.getNumEntrada(), numEntrada)
+                    && mismaFuncion(cur.getSala(), funcion)) {
+                it.remove();
+                recalcularTotal(carrito);
                 return carrito;
             }
         }
-
-        return carrito; // No encontró coincidencia
+        return carrito;
+    }
+    
+    private boolean mismaFuncion(Hall a, Hall b) {
+        if (a == null || b == null) return false;
+        return a.getNumSala() == b.getNumSala()
+            && a.getDiaPelicula() == b.getDiaPelicula()
+            && java.util.Objects.equals(a.getHoraInicio(), b.getHoraInicio());
     }
 
 
