@@ -67,7 +67,7 @@ public class ServiceClient {
 			return false;
 		}
 		
-		return repo.guardar(cliente);
+		return repo.editar(cliente);
 		
 	}
 	
