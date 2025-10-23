@@ -53,7 +53,8 @@ public class ServiceCarrito {
         if(carrito == null || combo == null) {
         	return null;
         }
-        carrito.getCombos().remove(combo); 
+        Integer id = combo.getIdCombo();
+        carrito.getCombos().removeIf(c -> c != null && java.util.Objects.equals(c.getIdCombo(), id));
         recalcularTotal(carrito);
         return carrito;  
     }
