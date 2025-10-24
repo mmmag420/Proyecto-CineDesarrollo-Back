@@ -136,40 +136,23 @@ public class ServiceSala {
         }
         return sillas;
     }
-  
     
-    public int limpiarFuncionesVencidas() {
-        return limpiarFuncionesVencidasHasta(java.time.LocalDateTime.now());
-    }
-
-    //LIMPIA LAS SILLAS DE LAS SALAS SI YA PASO EL DIA
-    public int limpiarFuncionesVencidasHasta(java.time.LocalDateTime ahora) {
+    //LIMPIA LA SALA POR ID
+    public int limpiarSalaPorId(int idObjetivo) {
         int count = 0;
-        var hoy = ahora.getDayOfWeek();        // LUNES..DOMINGO
-        var horaActual = ahora.toLocalTime();
 
         for (Hall h : repoSala.listarTodas()) {
-            java.time.DayOfWeek dow = toDow(h.getDiaPelicula());
-            boolean vencida = false;
-
-            if (dow.getValue() < hoy.getValue()) {
-                // día pasó esta semana
-                vencida = true;
-            } else if (dow == hoy && h.getHoraFin().isBefore(horaActual)) {
-                // es hoy y ya terminó
-                vencida = true;
-            }
-
-            if (vencida) {
-                for (Chair c : h.getSillas()) c.setEstado(false);
+            if (h.getNumSala() == idObjetivo) {
+                for (Chair c : h.getSillas()) {
+                    c.setEstado(false); // Limpia la silla (la marca como vacía)
+                }
                 count++;
             }
         }
+
         return count;
     }
     
-
-
     
     private record SalaConfig(Movie movie, int capacidad) {}
 
@@ -178,10 +161,7 @@ public class ServiceSala {
         int duracionMin = convertirDuracionAMinutos(movie.getDuracion());
         return horaInicio.plusMinutes(duracionMin + limpiezaMin);
     }
-    
-  
-    
-    
+
     //CONVERTIMOS LA DURACION DE LAS PELCICULAS QUE ESTAN EN STRING A MINUTOS PARA PODER COMPARAR EN OTROS METODOS
     private int convertirDuracionAMinutos(String duracionStr) {
         // Elimina espacios extra y convierte todo a minúsculas

@@ -184,41 +184,47 @@ public class ControllerSala {
     // 4) Administración / Limpieza
     // -----------------------
 
-    @Operation(summary = "Limpiar funciones vencidas", description = "Libera sillas de funciones que ya terminaron (modelo semanal).")
-    @ApiResponse(responseCode = "200", description = "Limpieza ejecutada")
-    @PostMapping("/funciones/limpiar-vencidas")
-    public ResponseEntity<Map<String, Object>> limpiarVencidas() {
-        int funciones = serviceSala.limpiarFuncionesVencidas();
-        return ResponseEntity.ok(Map.of("funcionesLimpias", funciones));
-    }
+    @Operation(
+            summary = "Limpiar sala por ID",
+            description = "Vacía todas las sillas de las salas cuyo ID coincida con el proporcionado, "
+                        + "independientemente de si la función está vencida o no."
+        )
+        @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Limpieza ejecutada"),
+            @ApiResponse(responseCode = "404", description = "No se encontraron salas con el ID indicado"),
+            @ApiResponse(responseCode = "400", description = "Parámetro inválido")
+        })
+        @PostMapping("/salas/{id}/limpiar")
+        public ResponseEntity<?> limpiarSalaPorId(
+            @Parameter(description = "ID de la sala a limpiar", required = true, example = "1")
+            @PathVariable("id") Integer idSala
+        ) {
+            try {
+                if (idSala == null) {
+                    return ResponseEntity.badRequest().body("Parámetro 'id' inválido o ausente.");
+                }
 
-    @Operation(summary = "Crear función", description = "Crea una función (sala + día + hora) para una película existente.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Función creada"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
-        @ApiResponse(responseCode = "409", description = "La función ya existe (sala+dia+hora)")
-    })
-    @PostMapping("/funcion")
-    public ResponseEntity<?> crearFuncion(@RequestBody Map<String, Object> body) {
-        try {
-            int sala = (Integer) body.get("sala");
-            String movieId = (String) body.get("movieId");
-            Dia dia = Dia.valueOf(((String) body.get("dia")).toUpperCase());
-            LocalTime horaInicio = LocalTime.parse((String) body.get("horaInicio"));
-            LocalTime horaFin = LocalTime.parse((String) body.get("horaFin"));
-            int capacidad = (Integer) body.get("capacidad");
+                // Llama a tu método de negocio que limpia por ID (sin mirar tiempo)
+                int salasLimpias = serviceSala.limpiarSalaPorId(idSala);
 
-            Movie movie = serviceMovie.findById(movieId);
-            if (movie == null) return ResponseEntity.badRequest().body("Película no válida");
+                if (salasLimpias == 0) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("No se encontraron salas con el ID " + idSala + ".");
+                }
 
-            Hall h = new Hall(sala, movie, dia, horaInicio, horaFin, generarSillas(capacidad));
-            boolean ok = serviceSala.guardarSala(h);
-            if (!ok) return ResponseEntity.status(HttpStatus.CONFLICT).body("La función ya existe (sala+dia+hora)");
-            return ResponseEntity.status(HttpStatus.CREATED).body(h);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Formato inválido del cuerpo: " + e.getMessage());
+                // Devuelve un pequeño payload con información útil
+                return ResponseEntity.ok(
+                    java.util.Map.of(
+                        "idSala", idSala,
+                        "salasLimpias", salasLimpias,
+                        "mensaje", "Se vaciaron todas las sillas de las salas con ID " + idSala + "."
+                    )
+                );
+            } catch (Exception e) {
+                return ResponseEntity.badRequest()
+                        .body("Error al procesar la solicitud: " + e.getMessage());
+            }
         }
-    }
 
     // -----------------------
     // Helpers internos (simples)
