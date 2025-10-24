@@ -25,6 +25,7 @@ public class ServiceMovie {
 	        "Bob Odenkirk",
 	        "Timo Tjahjanto",
 	        "/imagenes/posterNadie2.jpg",
+	        "/imagenes/btnNadie2.png",
 	        "https://www.youtube.com/watch?v=latAzkdZJO4&ab_channel=RoyalFilms",
 	        "1h 55m"
 	    );
@@ -37,6 +38,7 @@ public class ServiceMovie {
 	            "Vera Farmiga, Patrick Wilson",
 	            "James Wan",
 	            "/imagenes/posterConjuro.jpg",
+	            "/imagenes/btnElConjuro.png",
 	            "https://www.youtube.com/watch?v=pZGe0V7_L-Q&ab_channel=RoyalFilms",
 	            "2h 05m"
 	    );
@@ -48,6 +50,7 @@ public class ServiceMovie {
 	            "Ioan Gruffudd, Jessica Alba, Chris Evans, Michael Chiklis",
 	            "Matt Shakman",
 	            "/imagenes/poster4Fantasticos.jpg",
+	            "/imagenes/btnCuatroFantasticos.png",
 	            "https://www.youtube.com/watch?v=g-a8Db2xea0&ab_channel=RoyalFilms",
 	            "2h 10m"
 	    );
