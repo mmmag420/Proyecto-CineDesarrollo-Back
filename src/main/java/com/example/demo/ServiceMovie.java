@@ -61,6 +61,10 @@ public class ServiceMovie {
 	}
 
 	public Movie save (Movie movie) {
+		Movie encontrado = findById(movie.getId());
+		if(encontrado != null) {
+			return null;
+		}		
 		return repositorymovie.save(movie);
 	}
 	

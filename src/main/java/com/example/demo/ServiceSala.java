@@ -27,14 +27,14 @@ public class ServiceSala {
 	
 	public void iniciarBaseQuemada() {
 		
-		Movie nobody2 = serviceMovie.findById("1");
-		Movie conjuro2 = serviceMovie.findById("2");
-		Movie cuatrofantasticos = serviceMovie.findById("3");
+		Movie pelicula1 = serviceMovie.findById("1");
+		Movie pelicula2 = serviceMovie.findById("2");
+		Movie pelicula3 = serviceMovie.findById("3");
 		
         var salasConfig = Map.of(
-                1, new SalaConfig(nobody2, 39),
-                2, new SalaConfig(conjuro2,   39),
-                3, new SalaConfig(cuatrofantasticos,  39)
+                1, new SalaConfig(pelicula1, 39),
+                2, new SalaConfig(pelicula2,   39),
+                3, new SalaConfig(pelicula3,  39)
             );
         
         
