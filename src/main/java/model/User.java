@@ -1,11 +1,14 @@
 package model;
 
+
 public class User {
 
 	private String rol;
 	private int id;
 	private String correo;
 	private String contraseña;
+	
+	public User() {}
 
 	public User(String rol, int id, String correo, String contraseña) {
 		this.rol = rol;

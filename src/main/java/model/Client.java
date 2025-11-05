@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Client extends User {
 
@@ -11,6 +12,8 @@ public class Client extends User {
 	private String ciudad;
 	private boolean estadoMembresia;
 	private ArrayList<Bill> historial;
+	
+	public Client() {}
 	
 	public Client(String rol, int id, String correo, String contraseña, String cedula, String nombre, String apellido, int edad, String ciudad, boolean estadoMembresia, ArrayList<Bill> historial) {
 		super(rol, id, correo, contraseña);
