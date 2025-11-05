@@ -6,6 +6,8 @@ public class Food {
 	private double precio;
 	private String descripcion;
 	
+	public Food() {}
+	
 	public Food(int idCombo, double precio, String descripcion) {
 		this.idCombo = idCombo;
 		this.precio = precio;

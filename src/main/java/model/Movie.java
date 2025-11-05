@@ -14,6 +14,8 @@ public class Movie {
     private String trailer;
     private String duracion;
     
+    public Movie() {}
+    
     public Movie(String id, String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String rutaImagenBoton, String trailer, String duracion) {
     	this.id = id;;
     	this.nombre = nombre;

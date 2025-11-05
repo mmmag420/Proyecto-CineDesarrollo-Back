@@ -3,8 +3,10 @@ package model;
 public class Ticket {
 	
 	private int numEntrada;
-	private int precioEntrada;
+	private double precioEntrada;
 	private Hall sala;
+	
+	public Ticket() {}
 	
 	public Ticket(int numEntrada, int precioEntrada, Hall sala) {
 		this.numEntrada = numEntrada;
@@ -20,11 +22,11 @@ public class Ticket {
 		this.numEntrada = numEntrada;
 	}
 
-	public int getPrecioEntrada() {
+	public double getPrecioEntrada() {
 		return precioEntrada;
 	}
 
-	public void setPrecioEntrada(int precioEntrada) {
+	public void setPrecioEntrada(double precioEntrada) {
 		this.precioEntrada = precioEntrada;
 	}
 

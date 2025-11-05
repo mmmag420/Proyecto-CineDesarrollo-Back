@@ -15,6 +15,8 @@ public class Hall {
 	private LocalTime horaFin;
 	private Chair[] sillas;
 	
+	public Hall() {}
+	
 	public Hall(int numSala, Movie movie, Dia diaPelicula, LocalTime horaInicio, LocalTime horaFin, Chair[] sillas) {
 		this.numSala = numSala;
 		this.movie = movie;
