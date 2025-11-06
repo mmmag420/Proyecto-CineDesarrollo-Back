@@ -1,17 +1,56 @@
 package model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
+@Entity
+@Table(name = "peliculas")
 public class Movie {
 	
+    @Id
+    @Column(name = "id", nullable = false, length = 64)
 	private String id;
+    
+    @NotBlank
+    @Size(max = 150)
+    @Column(nullable = false, length = 150)
     private String nombre;
+    
+    @NotBlank
+    @Lob    
     private String descripcion;
+    
+    @Size(max = 10)
+    @Column(length = 10)
     private String clasificacion;
+    
+    @Size(max = 500)
+    @Column(length = 500)
     private String reparto;
+    
+    @Size(max = 120)
+    @Column(length = 120)
     private String director;
+    
+    @Size(max = 255)
+    @Column(length = 255)
     private String rutaImagen;
+    
+    @Size(max = 255)
+    @Column(length = 255)
     private String rutaImagenBoton;
+    
+    @Size(max = 255)
+    @Column(length = 255)
     private String trailer;
+    
+    @Size(max = 20)
+    @Column(length = 20)
     private String duracion;
     
     public Movie() {}
