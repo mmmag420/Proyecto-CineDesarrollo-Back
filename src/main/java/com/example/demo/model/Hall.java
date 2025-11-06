@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import java.time.LocalTime;
 
@@ -7,23 +7,35 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "salas")
+@Table(
+		  name = "salas",
+		  uniqueConstraints = @UniqueConstraint(
+		    name = "uk_sala_dia_hora",
+		    columnNames = {"num_sala","dia_pelicula","hora_inicio"}
+		  )
+		)
 public class Hall {
 	
 	public enum Dia {
 	    LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, SABADO, DOMINGO
 	}
 	
-    @Id
-    @Column(name = "num_sala", nullable = false)
+	 @Id
+	 @GeneratedValue(strategy = GenerationType.IDENTITY)
+	 private Long id; // <-- nuevo PK
+	
+	@Column(name = "num_sala", nullable = false)
 	private int numSala;
     
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

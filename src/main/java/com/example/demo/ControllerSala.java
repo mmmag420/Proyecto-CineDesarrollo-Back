@@ -17,13 +17,18 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import model.Chair;
-import model.Hall;
-import model.Hall.Dia;
-import model.Movie;
+
+import com.example.demo.model.Chair;
+import com.example.demo.model.Hall;
+import com.example.demo.model.Hall.Dia;
+import com.example.demo.model.Movie;
+
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import com.example.demo.servicios.ServiceMovie;
+import com.example.demo.servicios.ServiceSala;
 
 
 @RestController

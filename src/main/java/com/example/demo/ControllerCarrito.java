@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.servicios.ServiceCarrito;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,10 +8,11 @@ import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import model.Bill;
-import model.Car;
-import model.Food;
-import model.Ticket;
+
+import com.example.demo.model.Bill;
+import com.example.demo.model.Car;
+import com.example.demo.model.Food;
+import com.example.demo.model.Ticket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

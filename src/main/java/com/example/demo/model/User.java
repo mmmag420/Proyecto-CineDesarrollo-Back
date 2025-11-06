@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -33,17 +33,17 @@ public class User {
     
     @NotBlank
     @Size(min = 8)
-    @Column(name = "contrasena", nullable = false)
+    @Column(name = "contrasena", nullable = false)                // <-- columna en DB (ASCII)
     @JsonProperty(value = "contraseña", access = JsonProperty.Access.WRITE_ONLY)
-	private String contraseña;
+	private String contrasena;
 	
 	public User() {}
 
-	public User(String rol, int id, String correo, String contraseña) {
+	public User(String rol, int id, String correo, String contrasena) {
 		this.rol = rol;
 		this.id = id;
 		this.correo = correo;
-		this.contraseña = contraseña;
+		this.contrasena = contrasena;
 	}
 
 	public String getRol() {
@@ -70,12 +70,12 @@ public class User {
 		this.correo = correo;
 	}
 
-	public String getContraseña() {
-		return contraseña;
+	public String getContrasena() {
+		return contrasena;
 	}
 
-	public void setContraseña(String contraseña) {
-		this.contraseña = contraseña;
+	public void setContrasena(String contraseña) {
+		this.contrasena = contraseña;
 	}
 	
  

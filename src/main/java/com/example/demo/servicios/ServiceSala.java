@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.servicios;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -6,13 +6,28 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-import model.Chair;
-import model.Hall;
-import model.Movie;
-import model.Hall.Dia;
+
+import com.example.demo.repositorios.RepositorySala;
+import com.example.demo.servicios.ServiceMovie;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+
+
+import com.example.demo.model.Chair;
+import com.example.demo.model.Hall;
+import com.example.demo.model.Movie;
+import com.example.demo.model.Hall.Dia;
+
+
 
 @Service
+@Transactional
+@DependsOn("serviceMovie")
 public class ServiceSala {
 
 	
@@ -22,10 +37,13 @@ public class ServiceSala {
 	public ServiceSala(RepositorySala repoSala, ServiceMovie serviceMovie) {
 		this.repoSala = repoSala;
 		this.serviceMovie = serviceMovie;	
-		iniciarBaseQuemada();
 	}
 	
 	public void iniciarBaseQuemada() {
+		
+        if (!repoSala.findAll().isEmpty()) {
+            return;
+        }
 		
 		Movie nobody2 = serviceMovie.findById("1");
 		Movie conjuro2 = serviceMovie.findById("2");
@@ -64,68 +82,81 @@ public class ServiceSala {
         }
 
 	}
-
-	//GUARDA LA SALA
-	public boolean guardarSala(Hall sala) {
-		Hall encontrado = repoSala.buscarPorDiaYHora(sala.getNumSala(), sala.getDiaPelicula(), sala.getHoraInicio());
-		if(encontrado != null) {
-			return false;
-		}
-		return repoSala.guardarSala(sala);
-	}
+	
+    public List<Hall> listarTodas() {
+        return repoSala.findAll();
+    }
+	
+    public boolean guardarSala(Hall sala) {
+        Optional<Hall> encontrado = repoSala.findByNumSalaAndDiaPeliculaAndHoraInicio(sala.getNumSala(), sala.getDiaPelicula(), sala.getHoraInicio());
+        if(encontrado.isPresent()) {
+        	return false;
+        }        
+        repoSala.save(sala);
+        return true;
+    }
 	
 	//BUSCA SALA EN TODAS
 	public Hall buscarSalaGlobal(int idSala) {
-		Hall encontrado = repoSala.buscarSalaGlobal(idSala);
-		if(encontrado == null) {
-			return null;		
-		}
-		return encontrado;
+	   return repoSala.findById(idSala).orElse(null);
+	    
 	}
 
 	//BUSCA LA SALA POR DIA
 	public Hall buscarPorDia(int idSala, Dia diaPelicula) {
-		Hall encontrado = repoSala.buscarPorDia(idSala, diaPelicula);
-		if(encontrado == null) {
-			return null;
-		}
-		return encontrado;
+		return repoSala.findByNumSalaAndDiaPelicula(idSala, diaPelicula).orElse(null);
+
 	}
 	
-	//BUSCA LA SALA POR DIA Y HORA
-	public Hall buscarPorDiaYHora(int idSala, Dia diaPelicula, LocalTime  horaInicio) {
-		Hall encontrado = repoSala.buscarPorDiaYHora(idSala, diaPelicula, horaInicio);
-		if(encontrado == null) {
-			return null;
-		}
-		return encontrado;
-	}
+	//BUSCA LA SALA POR DIA Y HORA	
+    public Hall buscarPorDiaYHora(int numSala, Dia dia, LocalTime horaInicio) {
+        return repoSala.findByNumSalaAndDiaPeliculaAndHoraInicio(numSala, dia, horaInicio).orElse(null);
+    }
 	
 	//RESERVA SILLA EN LA SALA
-	public boolean reservarSilla(Hall sala, int numSilla) {
-		return repoSala.reservarSilla(sala, numSilla);
-	}
+
+    public boolean reservarSilla(Hall sala, int numSilla) {
+		Chair[] sillas = sala.getSillas();
+		for(int i = 0; i < sillas.length; i++) {
+			Chair silla = sillas[i];
+			if(silla.getNumSilla() == numSilla && silla.isEstado() == false) {
+				silla.setEstado(true);
+				return true;
+			}
+		}
+		return false;
+    }
 	
 	//CANCELAR SILLA POR SI LA QUITA DEL CARRITO
-	public boolean cancelarSilla(Hall sala, int numSilla) {
-		return repoSala.cancelarSilla(sala, numSilla);
-	}
+	   public boolean cancelarSilla(Hall sala, int numSilla) {
+	        Chair[] sillas = sala.getSillas();
+	        if (sillas == null) return false;
+	        for (Chair s : sillas) {
+	            if (s.getNumSilla() == numSilla && s.isEstado()) {
+	                s.setEstado(false);
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
 	
 	//DEVUELVE EL ESTADO DE LAS SILLAS DE LA SALA PARA MOSTRARLAS EN LA VENTANA
 	public boolean[] estadoSillas(Hall sala) {
-		  return repoSala.estadoSillas(sala);
+		   Chair[] sillasSala = sala.getSillas();
+		   boolean[] estado = new boolean[sillasSala.length];	   
+		   for(int i = 0; i < sillasSala.length; i++) {
+			   estado[i] = sillasSala[i].isEstado();		   
+		   }
+		   return estado;
 	}
 	
-	//LISTA LAS SALAS POR DIA 
 	public List<Hall> listarPorSalaYDia(int idSala, Hall.Dia dia) {
-	    return repoSala.listarPorSalaYDia(idSala, dia);
+	    List<Hall> out = new ArrayList<>();
+	    List<Hall> salas = repoSala.findAll();
+	    for (Hall s : salas) if (s.getNumSala()==idSala && s.getDiaPelicula()==dia) out.add(s);
+	    return out;
 	}
-	
-	//LISTA TODAS LAS SALAS
-	public List<Hall> listarTodas() {
-		return repoSala.listarTodas();
-	}
-	
+		
 
 	// GENERA SILLAS EN FALSE PARA CADA SALA
     private Chair[] generarSillas(int cantidad) {
@@ -137,11 +168,10 @@ public class ServiceSala {
         return sillas;
     }
     
-    //LIMPIA LA SALA POR ID
     public int limpiarSalaPorId(int idObjetivo) {
         int count = 0;
 
-        for (Hall h : repoSala.listarTodas()) {
+        for (Hall h : repoSala.findAll()) {
             if (h.getNumSala() == idObjetivo) {
                 for (Chair c : h.getSillas()) {
                     c.setEstado(false); // Limpia la silla (la marca como vacía)
@@ -152,8 +182,7 @@ public class ServiceSala {
 
         return count;
     }
-    
-    
+           
     private record SalaConfig(Movie movie, int capacidad) {}
 
     // CALCULAMOS A QUE HORA SE ESTA ACABANDO LA PELICULA
@@ -212,5 +241,12 @@ public class ServiceSala {
             default: throw new IllegalStateException();
         }
     }
+    
+    @PostConstruct
+    public void initBase() {
+        iniciarBaseQuemada();
+    }
+    
+
 
 }
