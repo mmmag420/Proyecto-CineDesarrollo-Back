@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,28 +25,22 @@ public class Movie {
     @Lob    
     private String descripcion;
     
-    @Size(max = 10)
-    @Column(length = 10)
+    @Column(name = "clasificacion", length = 250)
     private String clasificacion;
     
-    @Size(max = 500)
-    @Column(length = 500)
+    @Column(name = "reparto", length = 300)
     private String reparto;
     
-    @Size(max = 120)
-    @Column(length = 120)
+    @Column(name = "director", length = 200)
     private String director;
     
-    @Size(max = 255)
-    @Column(length = 255)
+    @Column(name = "rutaImagen", length = 300)
     private String rutaImagen;
     
-    @Size(max = 255)
-    @Column(length = 255)
+    @Column(name = "rutaImagenBoton", length = 300)
     private String rutaImagenBoton;
     
-    @Size(max = 255)
-    @Column(length = 255)
+    @Column(name = "trailer", length = 1000)
     private String trailer;
     
     @Size(max = 20)
@@ -67,46 +61,62 @@ public class Movie {
         this.trailer = trailer;
         this.duracion = duracion;
     }
-    
-    public String getId() { 
-    	return id;
-    	}
-    
-    public void setId(String id) {
-    	this.id = id;
-    	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getClasificacion() {
-        return clasificacion;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public String getReparto() {
-        return reparto;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-    public String getDirector() {
-        return director;
-    }
+	public String getDescripcion() {
+		return descripcion;
+	}
 
-    public String getRutaImagen() {
-        return rutaImagen;
-    }
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 
-    public String getTrailer() {
-        return trailer;
-    }
+	public String getClasificacion() {
+		return clasificacion;
+	}
 
-    public String getDuracion() {
-        return duracion;
-    }
+	public void setClasificacion(String clasificacion) {
+		this.clasificacion = clasificacion;
+	}
+
+	public String getReparto() {
+		return reparto;
+	}
+
+	public void setReparto(String reparto) {
+		this.reparto = reparto;
+	}
+
+	public String getDirector() {
+		return director;
+	}
+
+	public void setDirector(String director) {
+		this.director = director;
+	}
+
+	public String getRutaImagen() {
+		return rutaImagen;
+	}
+
+	public void setRutaImagen(String rutaImagen) {
+		this.rutaImagen = rutaImagen;
+	}
 
 	public String getRutaImagenBoton() {
 		return rutaImagenBoton;
@@ -115,6 +125,26 @@ public class Movie {
 	public void setRutaImagenBoton(String rutaImagenBoton) {
 		this.rutaImagenBoton = rutaImagenBoton;
 	}
+
+	public String getTrailer() {
+		return trailer;
+	}
+
+	public void setTrailer(String trailer) {
+		this.trailer = trailer;
+	}
+
+	public String getDuracion() {
+		return duracion;
+	}
+
+	public void setDuracion(String duracion) {
+		this.duracion = duracion;
+	}
+    
+	
+	
+	
     
     
     

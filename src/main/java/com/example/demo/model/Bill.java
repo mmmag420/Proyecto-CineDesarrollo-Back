@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import java.util.ArrayList;
 
@@ -25,7 +25,7 @@ public class Bill {
 	@Column(name = "cliente_cedula", nullable = false)
 	private String cedulaCliente;
 	
-	@Column(name = "valor_factura", nullable = false, precision = 12, scale = 2)
+	@Column(name = "valor_factura", nullable = false)
 	private double valorFactura;
 	
 	@Column(name = "metodo_pago", nullable = false, length = 20)

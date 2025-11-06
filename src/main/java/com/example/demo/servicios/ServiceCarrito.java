@@ -1,20 +1,28 @@
-package com.example.demo;
+package com.example.demo.servicios;
 
-import model.Bill;
-import model.Car;
-import model.Food;
-import model.Ticket;
-import model.Hall;
-import model.Chair;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.example.demo.model.Bill;
+import com.example.demo.model.Car;
+import com.example.demo.model.Chair;
+import com.example.demo.model.Food;
+import com.example.demo.model.Hall;
+import com.example.demo.model.Ticket;
+import com.example.demo.repositorios.RepositoryCarrito;
+import com.example.demo.repositorios.RepositoryCombo;
+
+import jakarta.transaction.Transactional;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
+@Transactional
 public class ServiceCarrito {
 	
 	private static final int PRECIO_ENTRADA = 14000;
@@ -22,20 +30,20 @@ public class ServiceCarrito {
 	
 	private final RepositoryCarrito repoCarrito;
     private final RepositoryCombo repoCombo; 
+    
 
     public ServiceCarrito(RepositoryCarrito repoCarrito, RepositoryCombo repoCombo) {
         this.repoCarrito = repoCarrito;
         this.repoCombo = repoCombo;
     }
-    
-    //guarda el carrito en su respectiva clase factura
+        
     public boolean agregarCarritoEnFactura(Car carrito, Bill factura) {
-    	if(carrito == null || factura == null) return false;
-    	if(factura.getCarrito() != null) {
-    		return false;
-    	}
-    	return repoCarrito.guardarCarroEnFactura(factura, carrito);
-    }
+        if (carrito == null || factura == null) return false;
+        if (factura.getCarrito() != null) return false; 
+
+        factura.setCarrito(carrito);
+        return true;
+      }
     
     
  
@@ -44,9 +52,13 @@ public class ServiceCarrito {
 		if(carrito == null || combo == null) {
 			return null;
 		}
-		repoCarrito.agregarComboAlCarrito(carrito, combo);
+		
+		Food comboBD = repoCombo.findById(combo.getIdCombo()).orElse(null);
+		if (comboBD == null) return carrito;
+		
+		carrito.getCombos().add(comboBD);
 		recalcularTotal(carrito);
-		return carrito;
+		return repoCarrito.save(carrito);
 	}
 	
 	//quita una unidad de un combo en el carrito
@@ -62,11 +74,11 @@ public class ServiceCarrito {
             if (c != null && java.util.Objects.equals(c.getIdCombo(), id)) {
                 it.remove();             
                 recalcularTotal(carrito);   
-                return carrito;
+                return repoCarrito.save(carrito);
             }
         }
 
-        return carrito;
+        return repoCarrito.save(carrito);
     }
     
     //agrega entradas al carrito y calcula su precio
@@ -79,9 +91,9 @@ public class ServiceCarrito {
     		return null;
     	}
     	  	
-    	repoCarrito.agregarEntradasAlCarrito(carrito, t);
+    	carrito.getEntradas().add(t);
     	recalcularTotal(carrito);
-    	return carrito;
+    	return repoCarrito.save(carrito);
     }
     
     
@@ -101,10 +113,10 @@ public class ServiceCarrito {
                     && mismaFuncion(cur.getSala(), funcion)) {
                 it.remove();
                 recalcularTotal(carrito);
-                return carrito;
+                return repoCarrito.save(carrito);
             }
         }
-        return carrito;
+        return repoCarrito.save(carrito);
     }
     
     private boolean mismaFuncion(Hall a, Hall b) {
@@ -114,8 +126,12 @@ public class ServiceCarrito {
             && java.util.Objects.equals(a.getHoraInicio(), b.getHoraInicio());
     }
     
-    public void vaciarCarrito(Car carrito) {
-        repoCarrito.vaciarCarrito(carrito);
+    public Car vaciarCarrito(Car carrito) {
+    	if (carrito == null) return null;
+    	carrito.getCombos().clear();
+    	carrito.getEntradas().clear();
+        recalcularTotal(carrito);
+        return repoCarrito.save(carrito);
     }
 
 
@@ -134,11 +150,11 @@ public class ServiceCarrito {
     }
     
     public List<Food> listarCombosDelCarrito(Car carrito) {
-        return repoCarrito.obtenerCombosDelCarrito(carrito);
+        return carrito != null ? carrito.getCombos() : List.of();
     }    
     
     public List<Ticket> listarEntradasDelCarrito(Car carrito) {
-        return repoCarrito.obtenerEntradasDelCarrito(carrito);
+    	return carrito != null ? carrito.getEntradas() : List.of();
     }
 
 }

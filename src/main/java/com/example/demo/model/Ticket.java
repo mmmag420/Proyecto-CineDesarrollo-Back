@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,12 +17,12 @@ public class Ticket {
     @Column(name = "num_entrada", nullable = false)
 	private int numEntrada;
 	
-    @NotNull
-    @Column(name = "precio_entrada", nullable = false, precision = 10, scale = 2)
+	@Column(name = "precio_entrada", nullable = false)
 	private double precioEntrada;
     
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "sala_id", referencedColumnName = "num_sala", nullable = false)
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "sala_id", nullable = false)
 	private Hall sala;
 	
 	public Ticket() {}

@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,12 +11,12 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "combos")
 public class Food {
 
-    @Id
-    @Column(name = "id_combo", nullable = false)
+	@Id
+	@Column(name = "id_combo")
 	private int idCombo;
     
     @NotNull
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "precio", nullable = false)
 	private double precio;
     
     @NotBlank

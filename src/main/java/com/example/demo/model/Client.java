@@ -1,7 +1,10 @@
-package model;
+package com.example.demo.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -31,7 +34,8 @@ public class Client extends User {
 	private boolean estadoMembresia;
 	
 	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-	private ArrayList<Bill> historial;
+	@JsonManagedReference
+	private ArrayList<Bill> historial = new ArrayList<Bill>();
 	
 
 	
@@ -45,7 +49,7 @@ public class Client extends User {
 		this.edad = edad;
 		this.ciudad = ciudad;
 		this.estadoMembresia = estadoMembresia;
-		this.historial = new ArrayList<Bill>();
+		this.historial = historial;
 	}
 
 	public String getCedula() {

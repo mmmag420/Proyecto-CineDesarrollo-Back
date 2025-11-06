@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import java.util.ArrayList;
 
@@ -21,26 +21,22 @@ public class Car {
 	private int idCarrito;
 	
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "carrito_id") // FK en entradas	
+	@JoinColumn(name = "carrito_id")
 	private ArrayList<Ticket> entradas;
 	
+	@ManyToMany
 	@JoinTable(
-			  name = "carrito_combos",
-			  joinColumns = @JoinColumn(name = "carrito_id"),
-			  inverseJoinColumns = @JoinColumn(name = "combo_id", referencedColumnName = "id_combo")
-			)
+	  name = "carrito_combos",
+	  joinColumns = @JoinColumn(name = "carrito_id"),
+	  inverseJoinColumns = @JoinColumn(name = "combo_id", referencedColumnName = "id_combo")
+	)
 	private ArrayList<Food> combos;
 	
-	@JoinTable(
-			  name = "carrito_combos",
-			  joinColumns = @JoinColumn(name = "carrito_id"),
-			  inverseJoinColumns = @JoinColumn(name = "combo_id", referencedColumnName = "id_combo")
-			)
-	
+		
 	@Column(nullable = false)
 	private boolean estado;
 	
-	@Column(name = "precio_final", nullable = false, precision = 10, scale = 2)
+	@Column(name = "precio_final", nullable = false)
 	private double precioFinal;
 	
 	public Car() {	
