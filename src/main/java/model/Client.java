@@ -3,15 +3,37 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+
+@Entity
 public class Client extends User {
 
+	@Column(nullable = false, unique = true, length = 20)
 	private String cedula;
+	
+	@Column(nullable = false, length = 60)
 	private String nombre;
+	
+	@Column(nullable = false, length = 60)
 	private String apellido;
+	
+	@Column(nullable = false)
 	private int edad;
+	
+	@Column(nullable = false, length = 80)
 	private String ciudad;
+	
+	@Column(nullable = false)
 	private boolean estadoMembresia;
+	
+	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ArrayList<Bill> historial;
+	
+
 	
 	public Client() {}
 	

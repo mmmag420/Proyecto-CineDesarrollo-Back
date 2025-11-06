@@ -2,15 +2,45 @@ package model;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "facturas")
 public class Bill {
 	
+	@Id
+	@Column(name = "id_factura")
 	private int idFactura;
+	
+	@Column(name = "cliente_cedula", nullable = false)
 	private String cedulaCliente;
+	
+	@Column(name = "valor_factura", nullable = false, precision = 12, scale = 2)
 	private double valorFactura;
+	
+	@Column(name = "metodo_pago", nullable = false, length = 20)
 	private String metodoDePago;
+	
+	@OneToOne(cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name = "carrito_id", referencedColumnName = "id_carrito", nullable = false)
 	private Car carrito;
 	
-	//private Client cliente; relacion de bill a cliente y cliente a bill quitar cuando este seguro de como se maneja esta relacion
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    @JsonBackReference
+	private Client cliente;
+	
+	public Bill() {}
 	
 	public Bill(int idFactura, String cedulaCliente, double valorFactura, String metodoDePago, Car carrito) {
 		this.idFactura = idFactura;
@@ -60,6 +90,16 @@ public class Bill {
 	public void setCarrito(Car carrito) {
 		this.carrito = carrito;
 	}
+
+	public Client getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Client cliente) {
+		this.cliente = cliente;
+	}
+	
+	
 
 	
 	

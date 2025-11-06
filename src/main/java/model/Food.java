@@ -1,9 +1,26 @@
 package model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+@Entity
+@Table(name = "combos")
 public class Food {
 
+    @Id
+    @Column(name = "id_combo", nullable = false)
 	private int idCombo;
+    
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
 	private double precio;
+    
+    @NotBlank
+    @Column(nullable = false, length = 255)
 	private String descripcion;
 	
 	public Food() {}
