@@ -35,13 +35,13 @@ public class Client extends User {
 	
 	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference
-	private ArrayList<Bill> historial = new ArrayList<Bill>();
+	private List<Bill> historial = new ArrayList<Bill>();
 	
 
 	
 	public Client() {}
 	
-	public Client(String rol, int id, String correo, String contraseña, String cedula, String nombre, String apellido, int edad, String ciudad, boolean estadoMembresia, ArrayList<Bill> historial) {
+	public Client(String rol, int id, String correo, String contraseña, String cedula, String nombre, String apellido, int edad, String ciudad, boolean estadoMembresia, List<Bill> historial) {
 		super(rol, id, correo, contraseña);
 		this.cedula = cedula;
 		this.nombre = nombre;
@@ -49,7 +49,7 @@ public class Client extends User {
 		this.edad = edad;
 		this.ciudad = ciudad;
 		this.estadoMembresia = estadoMembresia;
-		this.historial = historial;
+		this.historial = (historial == null) ? new ArrayList<Bill>() : historial;
 	}
 
 	public String getCedula() {
@@ -100,11 +100,11 @@ public class Client extends User {
 		this.estadoMembresia = estadoMembresia;
 	}
 
-	public ArrayList<Bill> getHistorial() {
+	public List<Bill> getHistorial() {
 		return historial;
 	}
 
-	public void setHistorial(ArrayList<Bill> historial) {
+	public void setHistorial(List<Bill> historial) {
 		this.historial = historial;
 	}
 

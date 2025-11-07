@@ -79,7 +79,7 @@ public class ServiceClient {
         Client c = buscarCliente(cliente.getCedula());
         if (c == null) return new ArrayList<>();
         // `historial` es la relación con Bill (lado cliente) si la dejaste con `mappedBy="cliente"`
-        return c.getHistorial(); // sigue devolviendo ArrayList<Bill>
+        return new ArrayList<Bill>(c.getHistorial()); // sigue devolviendo ArrayList<Bill>
     }
 	
     public boolean agregarFacturaClient(Client cliente, Bill factura) {

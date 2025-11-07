@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -10,6 +12,7 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "peliculas")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Movie {
 	
     @Id
