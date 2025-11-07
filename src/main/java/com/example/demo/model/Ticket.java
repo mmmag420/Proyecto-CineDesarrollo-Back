@@ -1,8 +1,12 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,8 +17,13 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "entradas")
 public class Ticket {
 	
-	@Id
-    @Column(name = "num_entrada", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_ticket")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private int id;  
+	
+	@Column(name = "num_entrada", nullable = false)
 	private int numEntrada;
 	
 	@Column(name = "precio_entrada", nullable = false)

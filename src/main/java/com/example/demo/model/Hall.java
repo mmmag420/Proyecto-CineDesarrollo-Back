@@ -2,6 +2,8 @@ package com.example.demo.model;
 
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +19,7 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 @Entity
 @Table(
 		  name = "salas",
@@ -33,7 +36,7 @@ public class Hall {
 	
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
-	 private Long id; // <-- nuevo PK
+	 private int id; // <-- nuevo PK
 	
 	@Column(name = "num_sala", nullable = false)
 	private int numSala;
@@ -115,5 +118,15 @@ public class Hall {
 	public void setSillas(Chair[] sillas) {
 		this.sillas = sillas;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	
 
 }

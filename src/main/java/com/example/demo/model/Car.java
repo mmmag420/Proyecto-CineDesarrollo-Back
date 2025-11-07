@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,7 +23,7 @@ public class Car {
 	
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "carrito_id")
-	private ArrayList<Ticket> entradas;
+	private List<Ticket> entradas = new ArrayList<>();
 	
 	@ManyToMany
 	@JoinTable(
@@ -30,7 +31,7 @@ public class Car {
 	  joinColumns = @JoinColumn(name = "carrito_id"),
 	  inverseJoinColumns = @JoinColumn(name = "combo_id", referencedColumnName = "id_combo")
 	)
-	private ArrayList<Food> combos;
+	private List<Food> combos = new ArrayList<>();
 	
 		
 	@Column(nullable = false)
@@ -42,10 +43,10 @@ public class Car {
 	public Car() {	
 	}
 	
-	public Car(int idCarrito, ArrayList<Ticket> entradas, ArrayList<Food> combos, boolean estado, double precioFinal) {
+	public Car(int idCarrito, List<Ticket> entradas, List<Food> combos, boolean estado, double precioFinal) {
 		this.idCarrito = idCarrito;
-		this.entradas = entradas;
-		this.combos = combos;
+		this.entradas = (entradas == null) ? new ArrayList<Ticket>() : entradas;
+		this.combos = (combos == null) ? new ArrayList<Food>() : combos;
 		this.estado = estado;
 		this.precioFinal = precioFinal;
 	}
@@ -58,19 +59,19 @@ public class Car {
 		this.idCarrito = idCarrito;
 	}
 
-	public ArrayList<Ticket> getEntradas() {
+	public List<Ticket> getEntradas() {
 		return entradas;
 	}
 
-	public void setEntradas(ArrayList<Ticket> entradas) {
+	public void setEntradas(List<Ticket> entradas) {
 		this.entradas = entradas;
 	}
 
-	public ArrayList<Food> getCombos() {
+	public List<Food> getCombos() {
 		return combos;
 	}
 
-	public void setCombos(ArrayList<Food> combos) {
+	public void setCombos(List<Food> combos) {
 		this.combos = combos;
 	}
 

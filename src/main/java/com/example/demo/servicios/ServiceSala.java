@@ -114,17 +114,30 @@ public class ServiceSala {
     }
 	
 	//RESERVA SILLA EN LA SALA
-
+    @Transactional
     public boolean reservarSilla(Hall sala, int numSilla) {
-		Chair[] sillas = sala.getSillas();
-		for(int i = 0; i < sillas.length; i++) {
-			Chair silla = sillas[i];
-			if(silla.getNumSilla() == numSilla && silla.isEstado() == false) {
-				silla.setEstado(true);
-				return true;
-			}
-		}
-		return false;
+        // Garantiza array de 39 y sillas no nulas
+        Chair[] sillas = sala.getSillas();
+        if (sillas == null || sillas.length != 39) {
+            sillas = new Chair[39];
+            sala.setSillas(sillas);
+        }
+        for (int i = 0; i < sillas.length; i++) {
+            if (sillas[i] == null) {
+                sillas[i] = new Chair(i + 1, false);
+            }
+        }
+
+        // Rango válido 1..39
+        if (numSilla < 1 || numSilla > 39) return false;
+
+        // Pequeño cerrojo por instancia (sin crear campos)
+        synchronized (sala) {
+            Chair silla = sillas[numSilla - 1];
+            if (silla.isEstado()) return false; // ya ocupada
+            silla.setEstado(true);
+            return true;
+        }
     }
 	
 	//CANCELAR SILLA POR SI LA QUITA DEL CARRITO
@@ -142,16 +155,21 @@ public class ServiceSala {
 	
 	//DEVUELVE EL ESTADO DE LAS SILLAS DE LA SALA PARA MOSTRARLAS EN LA VENTANA
 	public boolean[] estadoSillas(Hall sala) {
-		   Chair[] sillasSala = sala.getSillas();
-		   if(sillasSala == null) {
-			   sillasSala = new Chair[39];
-			   sala.setSillas(sillasSala);
-		   }
-		   boolean[] estado = new boolean[sillasSala.length];	   
-		   for(int i = 0; i < sillasSala.length; i++) {
-			   estado[i] = (sillasSala[i] != null) && sillasSala[i].isEstado();		   
-		   }
-		   return estado;
+	    Chair[] sillasSala = sala.getSillas();
+	    if (sillasSala == null || sillasSala.length != 39) {
+	        sillasSala = new Chair[39];
+	        sala.setSillas(sillasSala);
+	    }
+	    for (int i = 0; i < sillasSala.length; i++) {
+	        if (sillasSala[i] == null) {
+	            sillasSala[i] = new Chair(i + 1, false);
+	        }
+	    }
+	    boolean[] estado = new boolean[sillasSala.length];
+	    for (int i = 0; i < sillasSala.length; i++) {
+	        estado[i] = sillasSala[i].isEstado();
+	    }
+	    return estado;
 	}
 	
 	public List<Hall> listarPorSalaYDia(int idSala, Hall.Dia dia) {
