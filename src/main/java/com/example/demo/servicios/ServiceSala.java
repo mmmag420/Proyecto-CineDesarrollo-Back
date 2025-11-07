@@ -143,9 +143,13 @@ public class ServiceSala {
 	//DEVUELVE EL ESTADO DE LAS SILLAS DE LA SALA PARA MOSTRARLAS EN LA VENTANA
 	public boolean[] estadoSillas(Hall sala) {
 		   Chair[] sillasSala = sala.getSillas();
+		   if(sillasSala == null) {
+			   sillasSala = new Chair[39];
+			   sala.setSillas(sillasSala);
+		   }
 		   boolean[] estado = new boolean[sillasSala.length];	   
 		   for(int i = 0; i < sillasSala.length; i++) {
-			   estado[i] = sillasSala[i].isEstado();		   
+			   estado[i] = (sillasSala[i] != null) && sillasSala[i].isEstado();		   
 		   }
 		   return estado;
 	}

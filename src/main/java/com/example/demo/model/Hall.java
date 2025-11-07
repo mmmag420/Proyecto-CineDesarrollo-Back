@@ -55,7 +55,7 @@ public class Hall {
 	private LocalTime horaFin;
     
     @Transient
-	private Chair[] sillas;
+	private Chair[] sillas = new Chair[39];
 	
 	public Hall() {}
 	
@@ -65,7 +65,7 @@ public class Hall {
 		this.diaPelicula = diaPelicula;
 		this.horaInicio = horaInicio;
 		this.horaFin = horaFin;
-		this.sillas = sillas;
+		this.sillas = (sillas == null) ? new Chair[39]: sillas;
 	}
 
 	public int getNumSala() {
