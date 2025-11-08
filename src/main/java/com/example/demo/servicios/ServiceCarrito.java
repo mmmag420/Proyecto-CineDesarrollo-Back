@@ -18,8 +18,10 @@ import com.example.demo.repositorios.RepositorySala;
 
 import jakarta.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -51,18 +53,42 @@ public class ServiceCarrito {
     
  
     //agrega un combo al carrito y actualiza el precio
-	public Car agregarComboAlCarrito(Car carrito, Food combo) {
-		if(carrito == null || combo == null) {
-			return null;
-		}
-		
-		Food comboBD = repoCombo.findById(combo.getIdCombo()).orElse(null);
-		if (comboBD == null) return carrito;
-		
-		carrito.getCombos().add(comboBD);
-		recalcularTotal(carrito);
-		return repoCarrito.save(carrito);
-	}
+    @Transactional
+    public Car agregarComboAlCarrito(Car carrito, Food combo) {
+        if (carrito == null || combo == null) return null;
+        if (carrito.getIdCarrito() <= 0) return null;
+
+        // 1) Reatachar o crear el carrito "managed"
+        Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
+        if (managed == null) {
+            managed = new Car();
+            managed.setIdCarrito(carrito.getIdCarrito());
+            managed.setEstado(false);
+            managed.setPrecioFinal(0.0);
+            managed.setEntradas(new ArrayList<>());
+            managed.setCombos(new ArrayList<>());
+            managed = repoCarrito.save(managed);
+        }
+
+        // 2) Asegurar listas no nulas
+        if (managed.getCombos() == null)   managed.setCombos(new ArrayList<>());
+        if (managed.getEntradas() == null) managed.setEntradas(new ArrayList<>());
+
+        // 3) Resolver el combo REAL desde BD (no uses el del body)
+        Food real = repoCombo.findById(combo.getIdCombo()).orElse(null);
+        if (real == null) return null;
+
+        // 4) Evitar duplicado exacto (opcional)
+        boolean yaEsta = managed.getCombos().stream()
+            .anyMatch(c -> Objects.equals(c.getIdCombo(), real.getIdCombo()));
+        if (!yaEsta) {
+            managed.getCombos().add(real);
+        }
+
+        // 5) Recalcular y guardar SOLO el managed
+        recalcularTotal(managed);
+        return repoCarrito.save(managed);
+    }
 	
 	//quita una unidad de un combo en el carrito
     public Car quitarUnaUnidadCombo(Car carrito, Food combo) {
