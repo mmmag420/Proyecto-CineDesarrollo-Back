@@ -6,84 +6,132 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.repositorios.RepositoryCarrito;
 import com.example.demo.repositorios.RepositoryClient;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.model.Bill;
+import com.example.demo.model.Car;
 import com.example.demo.model.Client;
+import com.example.demo.model.Hall;
+import com.example.demo.model.Ticket;
 
 @Service
 @Transactional
 public class ServiceClient {
 
-	private final RepositoryClient repo;
+	private final RepositoryClient repoClient;
+	private final RepositoryCarrito repoCar;
 
-	public ServiceClient(RepositoryClient repo) {
-		this.repo = repo;
+	public ServiceClient(RepositoryClient repoClient, RepositoryCarrito repoCar) {
+		this.repoClient = repoClient;
+		this.repoCar = repoCar;
 	}
 	
 	public List<Client> listarClientes() {
-		return repo.findAll();
+		return repoClient.findAll();
 	}
 
 	
 	public boolean guardarCliente(Client cliente) {
 		
-		if (repo.existsByCedula(cliente.getCedula())) return false;	
+		if (repoClient.existsByCedula(cliente.getCedula())) return false;	
 		
 		if(cliente.getEdad() < 18) {
 			return false;
 		}	
 		
-		repo.save(cliente);
+		repoClient.save(cliente);
 		return true;
 	}
 	
 	public Client buscarCliente(String cedula) {
-		return repo.findByCedula(cedula).orElse(null);
+		return repoClient.findByCedula(cedula).orElse(null);
 	}
 	
 	public boolean editarCliente(Client cliente) {
 		if (cliente.getEdad() < 18) return false;
 		
-        Optional<Client> actualOpt = repo.findByCedula(cliente.getCedula());
+        Optional<Client> actualOpt = repoClient.findByCedula(cliente.getCedula());
         if (actualOpt.isEmpty()) return false;
 		
         Client actual = actualOpt.get();
         actual.setEstadoMembresia(cliente.isEstadoMembresia());
 
 
-        repo.save(actual);
+        repoClient.save(actual);
         return true;
 		
 	}
 	
 	public boolean eliminarCliente(Client cliente) {
-        Optional<Client> actual = repo.findByCedula(cliente.getCedula());
+        Optional<Client> actual = repoClient.findByCedula(cliente.getCedula());
         if (actual.isEmpty()) return false;
-        repo.delete(actual.get());
+        repoClient.delete(actual.get());
         return true;
 	}
 	
     public Client buscarPorCorreoYContraseña(String correo, String contraseña) {
-        return repo.findByCorreoAndContrasena(correo, contraseña).orElse(null);
+        return repoClient.findByCorreoAndContrasena(correo, contraseña).orElse(null);
     }
     
+    @Transactional(readOnly = true)
     public ArrayList<Bill> obtenerTodasLasFacturasDelUser(Client cliente) {
-        Client c = buscarCliente(cliente.getCedula());
-        if (c == null) return new ArrayList<>();
-        // `historial` es la relación con Bill (lado cliente) si la dejaste con `mappedBy="cliente"`
-        return new ArrayList<Bill>(c.getHistorial()); // sigue devolviendo ArrayList<Bill>
+    	  Client c = buscarCliente(cliente.getCedula());
+    	    if (c == null) return new ArrayList<>();
+
+    	    var facturas = c.getHistorial();
+    	    if (facturas == null || facturas.isEmpty()) return new ArrayList<>();
+
+    	    // Forzar carga de asociaciones LAZY antes de serializar en el front
+    	    for (Bill f : facturas) {
+    	        Car car = f.getCarrito();
+    	        if (car != null) {
+    	            if (car.getCombos() != null)   car.getCombos().size();
+    	            if (car.getEntradas() != null) {
+    	                car.getEntradas().size();
+    	                for (Ticket t : car.getEntradas()) {
+    	                    if (t != null && t.getSala() != null) {
+    	                        Hall h = t.getSala();
+    	                        h.getNumSala(); // toca algo simple
+    	                        if (h.getMovie() != null) h.getMovie().getNombre();
+    	                    }
+    	                }
+    	            }
+    	        }
+    	    }
+
+    	    return new ArrayList<>(facturas);
     }
 	
+    @Transactional
     public boolean agregarFacturaClient(Client cliente, Bill factura) {
         Client c = buscarCliente(cliente.getCedula());
         if (c == null) return false;
-        // Enlaza ambos lados si tu Bill tiene `cliente`
+
+        if (factura.getCedulaCliente() == null || factura.getCedulaCliente().isBlank()) {
+            factura.setCedulaCliente(c.getCedula());
+        }
+
+        if (factura.getCarrito() == null || factura.getCarrito().getIdCarrito() <= 0) {
+            return false;
+        }
+
+        Car managedCar = repoCar.findById(factura.getCarrito().getIdCarrito()).orElse(null);
+        if (managedCar == null) return false;
+
+        // ✅ primero marca y enlaza
+        managedCar.setEstado(true);
+        factura.setCarrito(managedCar);
         factura.setCliente(c);
+
+        if (c.getHistorial() == null) c.setHistorial(new ArrayList<>());
         c.getHistorial().add(factura);
-        repo.save(c);
+
+        // guarda todo (Bill se persiste por cascade desde Client.historial;
+        // y Bill tiene OneToOne(cascade=ALL) con Car, por si hiciera falta)
+        repoClient.save(c);
         return true;
     }
 	

@@ -187,12 +187,24 @@ public class ServiceCarrito {
             && java.util.Objects.equals(a.getHoraInicio(), b.getHoraInicio());
     }
     
+    @Transactional
     public Car vaciarCarrito(Car carrito) {
-    	if (carrito == null) return null;
-    	carrito.getCombos().clear();
-    	carrito.getEntradas().clear();
-        recalcularTotal(carrito);
-        return repoCarrito.save(carrito);
+        if (carrito == null || carrito.getIdCarrito() <= 0) return null;
+
+        // Reatachar el carrito REAL desde BD
+        Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
+        if (managed == null) return null;
+
+        // Limpiar colecciones (con orphanRemoval=true en entradas borra filas hijas)
+        if (managed.getEntradas() != null) managed.getEntradas().clear(); // borra filas en "entradas" (FK carrito_id)
+        if (managed.getCombos()   != null) managed.getCombos().clear();   // borra filas en tabla puente carrito_combos
+
+        // Reset de estado y total
+        managed.setPrecioFinal(0.0);
+        managed.setEstado(false);
+
+        // Persistir cambios
+        return repoCarrito.save(managed);
     }
 
 
