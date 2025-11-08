@@ -14,6 +14,7 @@ import com.example.demo.model.Hall;
 import com.example.demo.model.Ticket;
 import com.example.demo.repositorios.RepositoryCarrito;
 import com.example.demo.repositorios.RepositoryCombo;
+import com.example.demo.repositorios.RepositorySala;
 
 import jakarta.transaction.Transactional;
 
@@ -30,11 +31,13 @@ public class ServiceCarrito {
 	
 	private final RepositoryCarrito repoCarrito;
     private final RepositoryCombo repoCombo; 
+    private final RepositorySala repoSala;
     
 
-    public ServiceCarrito(RepositoryCarrito repoCarrito, RepositoryCombo repoCombo) {
+    public ServiceCarrito(RepositoryCarrito repoCarrito, RepositoryCombo repoCombo, RepositorySala repoSala) {
         this.repoCarrito = repoCarrito;
         this.repoCombo = repoCombo;
+        this.repoSala = repoSala;
     }
         
     public boolean agregarCarritoEnFactura(Car carrito, Bill factura) {
@@ -82,18 +85,50 @@ public class ServiceCarrito {
     }
     
     //agrega entradas al carrito y calcula su precio
+    @Transactional
     public Car agregarEntradaAlCarrito(Car carrito, Ticket t) {
-        if (carrito == null || t == null || t.getSala() == null) {
-            return null;
-        }    	
-        
-    	if(t.getNumEntrada() <= 0 || t.getSala().getNumSala() <= 0) {
-    		return null;
-    	}
-    	  	
-    	carrito.getEntradas().add(t);
-    	recalcularTotal(carrito);
-    	return repoCarrito.save(carrito);
+        if (carrito == null || t == null || t.getSala() == null) return null;
+
+        // Re-attach o crea
+        if (carrito.getIdCarrito() <= 0) return null;
+        Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
+        if (managed == null) {
+            managed = new Car();
+            managed.setIdCarrito(carrito.getIdCarrito());
+            managed.setEstado(false);
+            managed.setPrecioFinal(0.0);
+            managed.setEntradas(new java.util.ArrayList<>());
+            managed.setCombos(new java.util.ArrayList<>());
+            managed = repoCarrito.save(managed);
+        }
+
+        if (managed.getEntradas() == null) managed.setEntradas(new java.util.ArrayList<>());
+        if (managed.getCombos()   == null) managed.setCombos(new java.util.ArrayList<>());
+
+        // Hall real (con id)
+        Hall s = t.getSala();
+        Hall salaReal = repoSala.findByNumSalaAndDiaPeliculaAndHoraInicio(
+                s.getNumSala(), s.getDiaPelicula(), s.getHoraInicio()
+        ).orElse(null);
+        if (salaReal == null) return null;
+
+        // Ticket listo para insert
+        t.setSala(salaReal);
+        if (t.getPrecioEntrada() <= 0) t.setPrecioEntrada(14000);
+        // si tienes getId/setId(int):
+        // if (t.getId() != 0) t.setId(0);
+
+        // Evitar duplicado
+        boolean yaExiste = managed.getEntradas().stream()
+            .anyMatch(e -> e.getSala() != null
+                        && java.util.Objects.equals(e.getSala().getId(), salaReal.getId())
+                        && e.getNumEntrada() == t.getNumEntrada());
+        if (yaExiste) return managed;
+
+        managed.getEntradas().add(t);
+        recalcularTotal(managed);
+
+        return repoCarrito.save(managed);
     }
     
     

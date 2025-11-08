@@ -51,13 +51,8 @@ public class ServiceClient {
         if (actualOpt.isEmpty()) return false;
 		
         Client actual = actualOpt.get();
-        actual.setNombre(cliente.getNombre());
-        actual.setApellido(cliente.getApellido());
-        actual.setEdad(cliente.getEdad());
-        actual.setCiudad(cliente.getCiudad());
         actual.setEstadoMembresia(cliente.isEstadoMembresia());
-        actual.setCorreo(cliente.getCorreo());
-        actual.setContrasena(cliente.getContrasena());
+
 
         repo.save(actual);
         return true;
