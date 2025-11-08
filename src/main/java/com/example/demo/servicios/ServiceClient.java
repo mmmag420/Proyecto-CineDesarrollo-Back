@@ -121,7 +121,7 @@ public class ServiceClient {
         Car managedCar = repoCar.findById(factura.getCarrito().getIdCarrito()).orElse(null);
         if (managedCar == null) return false;
 
-        // ✅ primero marca y enlaza
+
         managedCar.setEstado(true);
         factura.setCarrito(managedCar);
         factura.setCliente(c);
@@ -129,8 +129,6 @@ public class ServiceClient {
         if (c.getHistorial() == null) c.setHistorial(new ArrayList<>());
         c.getHistorial().add(factura);
 
-        // guarda todo (Bill se persiste por cascade desde Client.historial;
-        // y Bill tiene OneToOne(cascade=ALL) con Car, por si hiciera falta)
         repoClient.save(c);
         return true;
     }

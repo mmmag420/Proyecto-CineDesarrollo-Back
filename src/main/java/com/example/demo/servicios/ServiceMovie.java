@@ -35,7 +35,8 @@ public class ServiceMovie {
 	        "/imagenes/posterNadie2.jpg",
 	        "/imagenes/btnNadie2.png",
 	        "https://www.youtube.com/watch?v=latAzkdZJO4&ab_channel=RoyalFilms",
-	        "1h 55m"
+	        "1h 55m",
+	        true
 	    ));
 	    
 		upsertIfAbsent(new Movie(
@@ -48,7 +49,8 @@ public class ServiceMovie {
 	            "/imagenes/posterConjuro.jpg",
 	            "/imagenes/btnElConjuro.png",
 	            "https://www.youtube.com/watch?v=pZGe0V7_L-Q&ab_channel=RoyalFilms",
-	            "2h 05m"
+	            "2h 05m",
+	            true
 	    ));
 	    
 		upsertIfAbsent(new Movie("3",
@@ -60,7 +62,9 @@ public class ServiceMovie {
 	            "/imagenes/poster4Fantasticos.jpg",
 	            "/imagenes/btnCuatroFantasticos.png",
 	            "https://www.youtube.com/watch?v=g-a8Db2xea0&ab_channel=RoyalFilms",
-	            "2h 10m"
+	            "2h 10m",
+	            true
+	            
 	    ));
 
 	}
@@ -92,6 +96,7 @@ public class ServiceMovie {
         actual.setRutaImagen(movie.getRutaImagen());
         actual.setRutaImagenBoton(movie.getRutaImagenBoton());
         actual.setTrailer(movie.getTrailer());
+        actual.setEstado(movie.isEstado());
 
         repositorymovie.save(actual);
         return actual;

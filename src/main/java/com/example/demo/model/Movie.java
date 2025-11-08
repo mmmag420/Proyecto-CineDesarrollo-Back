@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -50,9 +51,14 @@ public class Movie {
     @Column(length = 20)
     private String duracion;
     
+    @NotNull
+    @Column(nullable = false)
+    private boolean estado;
+    
+
     public Movie() {}
     
-    public Movie(String id, String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String rutaImagenBoton, String trailer, String duracion) {
+    public Movie(String id, String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String rutaImagenBoton, String trailer, String duracion, boolean estado) {
     	this.id = id;;
     	this.nombre = nombre;
         this.descripcion = descripcion;
@@ -63,6 +69,7 @@ public class Movie {
         this.rutaImagenBoton = rutaImagenBoton;
         this.trailer = trailer;
         this.duracion = duracion;
+        this.estado = estado;
     }
 
 	public String getId() {
@@ -144,6 +151,16 @@ public class Movie {
 	public void setDuracion(String duracion) {
 		this.duracion = duracion;
 	}
+
+	public boolean isEstado() {
+		return estado;
+	}
+
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+	}
+	
+	
     
 	
 	
