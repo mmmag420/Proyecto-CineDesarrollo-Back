@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.repositorios.RepositoryMovie;
 import com.example.demo.repositorios.RepositorySala;
 import com.example.demo.servicios.ServiceMovie;
 
@@ -33,10 +34,12 @@ public class ServiceSala {
 	
 	private final RepositorySala repoSala;
 	private final ServiceMovie serviceMovie;
+	private final RepositoryMovie repoMovie;
 	
-	public ServiceSala(RepositorySala repoSala, ServiceMovie serviceMovie) {
+	public ServiceSala(RepositorySala repoSala, ServiceMovie serviceMovie, RepositoryMovie repoMovie) {
 		this.repoSala = repoSala;
 		this.serviceMovie = serviceMovie;	
+		this.repoMovie = repoMovie;
 	}
 	
 	public void iniciarBaseQuemada() {
@@ -267,6 +270,20 @@ public class ServiceSala {
     @PostConstruct
     public void initBase() {
         iniciarBaseQuemada();
+    }
+    
+    @Transactional
+    public int pasarSalasDePelicula(String movieIdVieja, String movieIdNueva) {
+        Movie vieja = repoMovie.findById(movieIdVieja).orElse(null);
+        Movie nueva = repoMovie.findById(movieIdNueva).orElse(null);
+        if (vieja == null || nueva == null) return 0;
+
+        List<Hall> salas = repoSala.findByMovie_Id(movieIdVieja);
+        for (Hall h : salas) {
+            h.setMovie(nueva);         
+        }
+        repoSala.saveAll(salas);
+        return salas.size();
     }
     
 
