@@ -191,19 +191,21 @@ public class ServiceCarrito {
     public Car vaciarCarrito(Car carrito) {
         if (carrito == null || carrito.getIdCarrito() <= 0) return null;
 
-        // Reatachar el carrito REAL desde BD
         Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
         if (managed == null) return null;
 
-        // Limpiar colecciones (con orphanRemoval=true en entradas borra filas hijas)
-        if (managed.getEntradas() != null) managed.getEntradas().clear(); // borra filas en "entradas" (FK carrito_id)
-        if (managed.getCombos()   != null) managed.getCombos().clear();   // borra filas en tabla puente carrito_combos
+        // 🔒 Si este carrito ya se usó en una factura, no lo vaciamos
+        if (managed.isEstado()) {
+            return null; // indica al front que debe crear un carrito nuevo
+        }
 
-        // Reset de estado y total
+        // Vaciar SOLO si no está facturado
+        if (managed.getEntradas() != null) managed.getEntradas().clear();
+        if (managed.getCombos()   != null) managed.getCombos().clear();
+
         managed.setPrecioFinal(0.0);
         managed.setEstado(false);
 
-        // Persistir cambios
         return repoCarrito.save(managed);
     }
 

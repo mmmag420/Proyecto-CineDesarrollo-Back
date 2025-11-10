@@ -230,6 +230,15 @@ public class ControllerSala {
                         .body("Error al procesar la solicitud: " + e.getMessage());
             }
         }
+    
+	    @PostMapping("/reasignar")
+	    public ResponseEntity<?> reasignar(
+	        @RequestParam String movieIdVieja,
+	        @RequestParam String movieIdNueva
+	    ) {
+	        int n = serviceSala.pasarSalasDePelicula(movieIdVieja, movieIdNueva);
+	        return ResponseEntity.ok("Salas reasignadas: " + n);
+	    }
 
     // -----------------------
     // Helpers internos (simples)
