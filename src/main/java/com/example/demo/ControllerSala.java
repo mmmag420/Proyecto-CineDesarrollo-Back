@@ -231,15 +231,39 @@ public class ControllerSala {
             }
         }
     
-	    @PostMapping("/reasignar")
-	    public ResponseEntity<?> reasignar(
-	        @RequestParam String movieIdVieja,
-	        @RequestParam String movieIdNueva
-	    ) {
-	        int n = serviceSala.pasarSalasDePelicula(movieIdVieja, movieIdNueva);
-	        return ResponseEntity.ok("Salas reasignadas: " + n);
-	    }
+    @PostMapping("/crear-por-defecto/auto")
+    @Operation(summary = "Crear funciones por defecto para una película",
+               description = "Crea funciones 16:50 y 21:30 para todos los días en una sala nueva (next numSala).")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Funciones creadas"),
+        @ApiResponse(responseCode = "404", description = "Película no encontrada o no se crearon funciones")
+    })
+    public ResponseEntity<Map<String, Object>> crearFuncionesPorDefectoAuto(
+            @RequestParam Integer movieId,
+            @RequestParam(required = false, defaultValue = "39") Integer capacidad) {
 
+        if (movieId == null || movieId <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "movieId inválido"));
+        }
+        if (capacidad == null || capacidad <= 0) capacidad = 39;
+
+        System.out.println("[SALAS] crear-por-defecto/auto movieId=" + movieId + " cap=" + capacidad);
+
+        int creadas = serviceSala.crearFuncionesPorDefectoParaMovieAutoSala(movieId, capacidad);
+        if (creadas == 0) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Película no encontrada o no se crearon funciones"));
+        }
+        return ResponseEntity.ok(Map.of(
+                "movieId", movieId,
+                "capacidad", capacidad,
+                "funcionesCreadas", creadas
+        ));
+    }
+    
+    
+    
+    
     // -----------------------
     // Helpers internos (simples)
     // -----------------------

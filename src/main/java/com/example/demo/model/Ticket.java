@@ -34,12 +34,6 @@ public class Ticket {
     @JoinColumn(name = "sala_id", nullable = false)
 	private Hall sala;
     
-    @Column(name="movie_titulo_compra")
-    private String movieTituloCompra;
-    
-    @Column(name="movie_id_compra")
-    private String movieIdCompra;
-	
 	public Ticket() {}
 	
 	public Ticket(int numEntrada, int precioEntrada, Hall sala) {
@@ -72,21 +66,6 @@ public class Ticket {
 		this.sala = sala;
 	}
 
-	public String getMovieTituloCompra() {
-		return movieTituloCompra;
-	}
-
-	public void setMovieTituloCompra(String movieTituloCompra) {
-		this.movieTituloCompra = movieTituloCompra;
-	}
-
-	public String getMovieIdCompra() {
-		return movieIdCompra;
-	}
-
-	public void setMovieIdCompra(String movieIdCompra) {
-		this.movieIdCompra = movieIdCompra;
-	}
 	
 	
 

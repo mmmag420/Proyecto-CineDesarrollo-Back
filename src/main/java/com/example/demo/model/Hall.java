@@ -41,8 +41,8 @@ public class Hall {
 	@Column(name = "num_sala", nullable = false)
 	private int numSala;
     
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "movie_id", nullable = false)
 	private Movie movie;
     
     @Enumerated(EnumType.STRING)

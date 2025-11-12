@@ -48,9 +48,9 @@ public class ServiceSala {
             return;
         }
 		
-		Movie nobody2 = serviceMovie.findById("1");
-		Movie conjuro2 = serviceMovie.findById("2");
-		Movie cuatrofantasticos = serviceMovie.findById("3");
+		Movie nobody2 = serviceMovie.findById(1);
+		Movie conjuro2 = serviceMovie.findById(2);
+		Movie cuatrofantasticos = serviceMovie.findById(3);
 		
         var salasConfig = Map.of(
                 1, new SalaConfig(nobody2, 39),
@@ -273,18 +273,37 @@ public class ServiceSala {
     }
     
     @Transactional
-    public int pasarSalasDePelicula(String movieIdVieja, String movieIdNueva) {
-        Movie vieja = repoMovie.findById(movieIdVieja).orElse(null);
-        Movie nueva = repoMovie.findById(movieIdNueva).orElse(null);
-        if (vieja == null || nueva == null) return 0;
+    public int crearFuncionesPorDefectoParaMovie(Integer movieId, int numSala, int capacidad) {
+        Movie movie = repoMovie.findById(movieId).orElse(null);
+        if (movie == null) return 0;
 
-        List<Hall> salas = repoSala.findByMovie_Id(movieIdVieja);
-        for (Hall h : salas) {
-            h.setMovie(nueva);         
+        LocalTime[] horarios = { LocalTime.of(16,50), LocalTime.of(21,30) };
+        int creadas = 0;
+        for (Hall.Dia dia : Hall.Dia.values()) {
+            for (LocalTime hi : horarios) {
+                LocalTime hf = calcularHoraFin(hi, movie, 15);
+                Hall hall = new Hall(numSala, movie, dia, hi, hf, generarSillas(capacidad));
+                repoSala.save(hall);
+                creadas++;
+            }
         }
-        repoSala.saveAll(salas);
-        return salas.size();
+        return creadas;
     }
+    
+    @Transactional
+    public int crearFuncionesPorDefectoParaMovieAutoSala(Integer movieId, Integer capacidad) {
+        Movie movie = repoMovie.findById(movieId).orElse(null);
+        if (movie == null) {
+        	return 0;
+        }
+
+        int max = Optional.ofNullable(repoSala.findMaxNumSala()).orElse(0);
+        int nextNumSala = max + 1;
+        int cap = (capacidad != null && capacidad > 0) ? capacidad : 39;
+
+        return crearFuncionesPorDefectoParaMovie(movie.getId(), nextNumSala, cap);
+    }
+
     
 
 
