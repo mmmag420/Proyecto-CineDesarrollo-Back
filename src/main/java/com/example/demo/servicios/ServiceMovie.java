@@ -26,7 +26,6 @@ public class ServiceMovie {
 	@PostConstruct
 	private void initSampleData() {
 		upsertIfAbsent(new Movie(
-	    		"1",
 	        "Nadie 2",
 	        "Hutch regresa enfrentándose a nuevos enemigos tras sus vacaciones familiares.",
 	        "Acción, Comedia, Thriller, Crimen",
@@ -40,7 +39,6 @@ public class ServiceMovie {
 	    ));
 	    
 		upsertIfAbsent(new Movie(
-	    		"2",
 	            "El Conjuro",
 	            "Los Warren investigan un nuevo caso sobrenatural lleno de terror y misterio.",
 	            "Terror",
@@ -53,7 +51,7 @@ public class ServiceMovie {
 	            true
 	    ));
 	    
-		upsertIfAbsent(new Movie("3",
+		upsertIfAbsent(new Movie(				
 	            "Los Cuatro Fantásticos",
 	            "Un grupo de superhéroes con poderes extraordinarios lucha contra nuevas amenazas.",
 	            "Acción, Aventura, Ciencia Ficción",
@@ -78,7 +76,7 @@ public class ServiceMovie {
 		return repositorymovie.save(movie);
 	}
 	
-	public Movie findById (String id) {
+	public Movie findById (int id) {
 		return repositorymovie.findById(id).orElse(null);
 	}
 	
@@ -102,7 +100,7 @@ public class ServiceMovie {
         return actual;
     }
 	
-    public boolean deleteById(String id) {
+    public boolean deleteById(int id) {
         Optional<Movie> actual = repositorymovie.findById(id);
         if (actual.isEmpty()) return false;
         repositorymovie.delete(actual.get());

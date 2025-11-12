@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
@@ -16,9 +18,10 @@ import jakarta.validation.constraints.Size;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Movie {
 	
-    @Id
-    @Column(name = "id", nullable = false, length = 64)
-	private String id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="id")
+	private int id;
     
     @NotBlank
     @Size(max = 150)
@@ -58,8 +61,7 @@ public class Movie {
 
     public Movie() {}
     
-    public Movie(String id, String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String rutaImagenBoton, String trailer, String duracion, boolean estado) {
-    	this.id = id;;
+    public Movie(String nombre, String descripcion, String clasificacion, String reparto, String director, String rutaImagen, String rutaImagenBoton, String trailer, String duracion, boolean estado) {
     	this.nombre = nombre;
         this.descripcion = descripcion;
         this.clasificacion = clasificacion;
@@ -72,11 +74,11 @@ public class Movie {
         this.estado = estado;
     }
 
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

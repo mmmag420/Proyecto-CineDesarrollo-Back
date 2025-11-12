@@ -9,6 +9,5 @@ import com.example.demo.model.Movie;
 
 public interface RepositoryMovie extends JpaRepository<Movie, Integer> {
 
-	Optional<Movie> findById(String id);
-	boolean existsById(String titulo);
+	Optional<Movie> findById(int id);
 }

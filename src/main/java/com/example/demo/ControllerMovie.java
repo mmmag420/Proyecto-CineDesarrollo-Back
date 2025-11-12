@@ -53,7 +53,7 @@ public class ControllerMovie {
         @ApiResponse(responseCode = "200", description = "Película encontrada"),
         @ApiResponse(responseCode = "404", description = "Película no encontrada")
     })
-    public ResponseEntity<Movie> getMovieById(@PathVariable @Parameter(description = "ID de la película") String id) {
+    public ResponseEntity<Movie> getMovieById(@PathVariable @Parameter(description = "ID de la película") int id) {
         Movie movie = serviceMovie.findById(id);
         if (movie != null) {
             return new ResponseEntity<>(movie, HttpStatus.OK);
@@ -80,7 +80,7 @@ public class ControllerMovie {
         @ApiResponse(responseCode = "200", description = "Película actualizada con éxito"),
         @ApiResponse(responseCode = "404", description = "Película no encontrada")
     })
-    public ResponseEntity<Movie> updateMovie(@PathVariable String id, @RequestBody Movie movie) {
+    public ResponseEntity<Movie> updateMovie(@PathVariable int id, @RequestBody Movie movie) {
         movie.setId(id);
         Movie updated = serviceMovie.update(movie);
         if (updated != null) {
@@ -97,7 +97,7 @@ public class ControllerMovie {
         @ApiResponse(responseCode = "204", description = "Película eliminada con éxito"),
         @ApiResponse(responseCode = "404", description = "Película no encontrada")
     })
-    public ResponseEntity<Void> deleteMovie(@PathVariable String id) {
+    public ResponseEntity<Void> deleteMovie(@PathVariable int id) {
         Movie movie = serviceMovie.findById(id);
         if (movie != null) {
             serviceMovie.deleteById(id);
