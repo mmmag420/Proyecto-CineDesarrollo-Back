@@ -1,9 +1,12 @@
 package com.example.demo.model;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
@@ -57,18 +61,20 @@ public class Hall {
     @Column(name = "hora_fin", nullable = false)
 	private LocalTime horaFin;
     
-    @Transient
-	private Chair[] sillas = new Chair[39];
+    @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+	private List<Chair> sillas = new ArrayList<>();
 	
 	public Hall() {}
 	
-	public Hall(int numSala, Movie movie, Dia diaPelicula, LocalTime horaInicio, LocalTime horaFin, Chair[] sillas) {
+	
+	public Hall(int numSala, Movie movie, Dia diaPelicula, LocalTime horaInicio, LocalTime horaFin, List<Chair> sillas) {
 		this.numSala = numSala;
 		this.movie = movie;
 		this.diaPelicula = diaPelicula;
 		this.horaInicio = horaInicio;
 		this.horaFin = horaFin;
-		this.sillas = (sillas == null) ? new Chair[39]: sillas;
+		this.sillas = (sillas == null) ? new ArrayList<>() : sillas;
 	}
 
 	public int getNumSala() {
@@ -111,11 +117,11 @@ public class Hall {
 		this.horaFin = horaFin;
 	}
 
-	public Chair[] getSillas() {
+	public List<Chair> getSillas() {
 		return sillas;
 	}
 
-	public void setSillas(Chair[] sillas) {
+	public void setSillas(List<Chair> sillas) {
 		this.sillas = sillas;
 	}
 
