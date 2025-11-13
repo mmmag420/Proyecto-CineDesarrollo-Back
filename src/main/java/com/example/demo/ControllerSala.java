@@ -264,14 +264,6 @@ public class ControllerSala {
     
     
     
-    // -----------------------
-    // Helpers internos (simples)
-    // -----------------------
-
-    private Chair[] generarSillas(int cantidad) {
-        Chair[] sillas = new Chair[cantidad];
-        for (int i = 0; i < cantidad; i++) sillas[i] = new Chair(i + 1, false);
-        return sillas;
-    }
+ 
 	
 }

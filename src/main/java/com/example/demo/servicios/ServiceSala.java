@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.repositorios.RepositoryMovie;
 import com.example.demo.repositorios.RepositorySala;
+import com.example.demo.repositorios.RepositorySilla;
 import com.example.demo.servicios.ServiceMovie;
 
 import jakarta.annotation.PostConstruct;
@@ -35,11 +38,13 @@ public class ServiceSala {
 	private final RepositorySala repoSala;
 	private final ServiceMovie serviceMovie;
 	private final RepositoryMovie repoMovie;
+	private final RepositorySilla repoSilla;
 	
-	public ServiceSala(RepositorySala repoSala, ServiceMovie serviceMovie, RepositoryMovie repoMovie) {
+	public ServiceSala(RepositorySala repoSala, ServiceMovie serviceMovie, RepositoryMovie repoMovie, RepositorySilla repoSilla) {
 		this.repoSala = repoSala;
 		this.serviceMovie = serviceMovie;	
 		this.repoMovie = repoMovie;
+		this.repoSilla = repoSilla;
 	}
 	
 	public void iniciarBaseQuemada() {
@@ -74,8 +79,9 @@ public class ServiceSala {
             for (Hall.Dia dia : Hall.Dia.values()) {
                 for (LocalTime hi : horarios) {
                     LocalTime hf = calcularHoraFin(hi, movie, 15); 
-                    Hall hall = new Hall(numSala, movie, dia, hi, hf, generarSillas(capacidad));
-
+                    Hall hall = new Hall(numSala, movie, dia, hi, hf, null);
+                    List<Chair> sillas = generarSillas(capacidad, hall);
+                    hall.setSillas(sillas);
                    
                     boolean ok = guardarSala(hall);
                     
@@ -119,59 +125,60 @@ public class ServiceSala {
 	//RESERVA SILLA EN LA SALA
     @Transactional
     public boolean reservarSilla(Hall sala, int numSilla) {
-        // Garantiza array de 39 y sillas no nulas
-        Chair[] sillas = sala.getSillas();
-        if (sillas == null || sillas.length != 39) {
-            sillas = new Chair[39];
-            sala.setSillas(sillas);
+        if (numSilla < 1 || numSilla > 39) {
+            return false;
         }
-        for (int i = 0; i < sillas.length; i++) {
-            if (sillas[i] == null) {
-                sillas[i] = new Chair(i + 1, false);
-            }
-        }
+        
+        asegurarSillas(sala);
+        
+        Chair silla = sala.getSillas().stream()
+                .filter(c -> c.getNumSilla() == numSilla)
+                .findFirst()
+                .orElse(null);
+        
+        if (silla == null) return false;
+        if (silla.isEstado()) return false;
+        
+        silla.setEstado(true);
+        
+        repoSala.save(sala);
+        
+        return true;
 
-        // Rango válido 1..39
-        if (numSilla < 1 || numSilla > 39) return false;
-
-        // Pequeño cerrojo por instancia (sin crear campos)
-        synchronized (sala) {
-            Chair silla = sillas[numSilla - 1];
-            if (silla.isEstado()) return false; // ya ocupada
-            silla.setEstado(true);
-            return true;
-        }
     }
 	
 	//CANCELAR SILLA POR SI LA QUITA DEL CARRITO
 	   public boolean cancelarSilla(Hall sala, int numSilla) {
-	        Chair[] sillas = sala.getSillas();
-	        if (sillas == null) return false;
-	        for (Chair s : sillas) {
-	            if (s.getNumSilla() == numSilla && s.isEstado()) {
-	                s.setEstado(false);
-	                return true;
-	            }
-	        }
-	        return false;
+		   if (sala.getSillas() == null || sala.getSillas().isEmpty()) {
+		        return false;
+		    }
+
+		    Chair silla = sala.getSillas().stream()
+		            .filter(c -> c.getNumSilla() == numSilla)
+		            .findFirst()
+		            .orElse(null);
+
+		    if (silla == null) return false;
+		    if (!silla.isEstado()) return false; // ya estaba libre
+
+		    silla.setEstado(false);
+		    repoSala.save(sala);
+
+		    return true;
+    
 	    }
 	
 	//DEVUELVE EL ESTADO DE LAS SILLAS DE LA SALA PARA MOSTRARLAS EN LA VENTANA
 	public boolean[] estadoSillas(Hall sala) {
-	    Chair[] sillasSala = sala.getSillas();
-	    if (sillasSala == null || sillasSala.length != 39) {
-	        sillasSala = new Chair[39];
-	        sala.setSillas(sillasSala);
+		asegurarSillas(sala);
+		
+		boolean[] estado = new boolean[39];
+		
+	    for (Chair c : sala.getSillas()) {
+	        int n = c.getNumSilla(); // 
+	        estado[n - 1] = c.isEstado();
 	    }
-	    for (int i = 0; i < sillasSala.length; i++) {
-	        if (sillasSala[i] == null) {
-	            sillasSala[i] = new Chair(i + 1, false);
-	        }
-	    }
-	    boolean[] estado = new boolean[sillasSala.length];
-	    for (int i = 0; i < sillasSala.length; i++) {
-	        estado[i] = sillasSala[i].isEstado();
-	    }
+	    
 	    return estado;
 	}
 	
@@ -184,28 +191,30 @@ public class ServiceSala {
 		
 
 	// GENERA SILLAS EN FALSE PARA CADA SALA
-    private Chair[] generarSillas(int cantidad) {
-        Chair[] sillas = new Chair[cantidad];
-        for (int i = 0; i < sillas.length; i++) {
-        
-            sillas[i] = new Chair(i + 1, false); 
+    private List<Chair> generarSillas(int cantidad, Hall hall) {
+    	List<Chair> sillas = new ArrayList<Chair>();
+        for (int i = 0; i < cantidad; i++) {        
+        	sillas.add(new Chair(i + 1, false, hall));
         }
         return sillas;
     }
     
     public int limpiarSalaPorId(int idObjetivo) {
-        int count = 0;
+    	  int count = 0;
 
-        for (Hall h : repoSala.findAll()) {
-            if (h.getNumSala() == idObjetivo) {
-                for (Chair c : h.getSillas()) {
-                    c.setEstado(false); // Limpia la silla (la marca como vacía)
-                }
-                count++;
-            }
-        }
+    	    for (Hall h : repoSala.findAll()) {
+    	        if (h.getNumSala() == idObjetivo) {
+    	            if (h.getSillas() != null) {
+    	                for (Chair c : h.getSillas()) {
+    	                    c.setEstado(false);
+    	                }
+    	                repoSala.save(h); // 👈 importante
+    	            }
+    	            count++;
+    	        }
+    	    }
 
-        return count;
+    	    return count;
     }
            
     private record SalaConfig(Movie movie, int capacidad) {}
@@ -282,7 +291,8 @@ public class ServiceSala {
         for (Hall.Dia dia : Hall.Dia.values()) {
             for (LocalTime hi : horarios) {
                 LocalTime hf = calcularHoraFin(hi, movie, 15);
-                Hall hall = new Hall(numSala, movie, dia, hi, hf, generarSillas(capacidad));
+                Hall hall = new Hall(numSala, movie, dia, hi, hf, null);
+                hall.setSillas(generarSillas(capacidad, hall));
                 repoSala.save(hall);
                 creadas++;
             }
@@ -302,6 +312,29 @@ public class ServiceSala {
         int cap = (capacidad != null && capacidad > 0) ? capacidad : 39;
 
         return crearFuncionesPorDefectoParaMovie(movie.getId(), nextNumSala, cap);
+    }
+    
+    private void asegurarSillas(Hall sala) {
+        if (sala.getSillas() == null) {
+            sala.setSillas(new ArrayList<>());
+        }
+
+        // Si ya tiene las 39, está bien
+        if (sala.getSillas().size() == 39) {
+            return;
+        }
+
+        // Determina qué sillas faltan por número
+        Set<Integer> existentes = sala.getSillas()
+                .stream()
+                .map(Chair::getNumSilla)
+                .collect(Collectors.toSet());
+
+        for (int i = 1; i <= 39; i++) {
+            if (!existentes.contains(i)) {
+                sala.getSillas().add(new Chair(i, false, sala));
+            }
+        }
     }
 
     
