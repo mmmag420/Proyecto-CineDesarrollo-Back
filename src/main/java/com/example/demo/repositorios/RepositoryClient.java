@@ -13,5 +13,7 @@ public interface RepositoryClient extends JpaRepository<Client, Integer> {
 	
 	Optional<Client> findByCorreoAndContrasena(String correo, String contrasena);
 	boolean existsByCorreoAndContrasena(String correo, String contrasena);
+	
+	Optional<Client> findByCorreo(String correo);
 		
 }

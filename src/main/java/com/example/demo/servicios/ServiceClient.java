@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.repositorios.RepositoryCarrito;
@@ -23,6 +24,9 @@ public class ServiceClient {
 
 	private final RepositoryClient repoClient;
 	private final RepositoryCarrito repoCar;
+	
+	@Autowired private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
 
 	public ServiceClient(RepositoryClient repoClient, RepositoryCarrito repoCar) {
 		this.repoClient = repoClient;
@@ -41,6 +45,11 @@ public class ServiceClient {
 		if(cliente.getEdad() < 18) {
 			return false;
 		}	
+		
+		if (cliente.getContrasena() != null && !cliente.getContrasena().isBlank()) {
+		      String hash = passwordEncoder.encode(cliente.getContrasena());
+		      cliente.setContrasena(hash);
+		}
 		
 		repoClient.save(cliente);
 		return true;
@@ -131,6 +140,23 @@ public class ServiceClient {
 
         repoClient.save(c);
         return true;
+    }
+    
+    public Client validarLogin(String correo, String contraseña) {
+    	Optional<Client> encontrado = repoClient.findByCorreo(correo);
+    	
+    	if(encontrado.isEmpty()) {
+    		return null;
+    	}
+    	
+    	Client cliente = encontrado.get();
+    	boolean coincide = passwordEncoder.matches(contraseña, cliente.getContrasena());
+    	
+    	if(!coincide) {
+    		return null;
+    	}
+    	
+    	return cliente;
     }
     
  

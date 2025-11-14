@@ -130,7 +130,7 @@ public class ControllerClient {
 	}
     
     
-    //buscar por correo y contraseña
+    /*//buscar por correo y contraseña
     @Operation(summary = "Login de cliente", description = "Permite autenticar a un cliente enviando correo y contraseña. Devuelve el cliente si las credenciales son válidas.")
     @ApiResponses(value = {
     	    @ApiResponse(responseCode = "200", description = "Login exitoso, retorna los datos del cliente"),
@@ -147,7 +147,7 @@ public class ControllerClient {
         }
                
         return ResponseEntity.ok(c);
-    }
+    }*/
     
     
     @Operation(summary = "Listar facturas de un cliente", description = "Devuelve todas las facturas asociadas al cliente indicado por su ID.")
@@ -184,7 +184,22 @@ public class ControllerClient {
     }
 
     
-    
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> datos) {
+
+        String correo = datos.get("correo");
+        String contraseña = datos.get("contraseña");
+
+        Client cliente = clienteService.validarLogin(correo, contraseña);
+
+        if (cliente == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Credenciales inválidas");
+        }
+
+        return ResponseEntity.ok(cliente); 
+    }
    
     
 	
