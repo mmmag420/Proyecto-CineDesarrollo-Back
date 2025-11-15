@@ -3,15 +3,11 @@ package com.example.demo.servicios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.repositorios.RepositoryCarrito;
 import com.example.demo.repositorios.RepositoryClient;
-
 import org.springframework.transaction.annotation.Transactional;
-
 import com.example.demo.model.Bill;
 import com.example.demo.model.Car;
 import com.example.demo.model.Client;
@@ -93,7 +89,6 @@ public class ServiceClient {
     	    var facturas = c.getHistorial();
     	    if (facturas == null || facturas.isEmpty()) return new ArrayList<>();
 
-    	    // Forzar carga de asociaciones LAZY antes de serializar en el front
     	    for (Bill f : facturas) {
     	        Car car = f.getCarrito();
     	        if (car != null) {

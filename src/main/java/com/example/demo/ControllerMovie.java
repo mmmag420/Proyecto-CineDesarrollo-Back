@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.servicios.ServiceMovie;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -34,7 +32,6 @@ public class ControllerMovie {
         this.serviceMovie = serviceMovie;
     }
 
-
     @GetMapping
     @Operation(summary = "Obtener todas las movies", description = "Lista de películas obtenidas con éxito")
     @ApiResponses(value = {
@@ -45,7 +42,6 @@ public class ControllerMovie {
         List<Movie> movies = serviceMovie.findAll();
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
-
 
     @GetMapping("/{id}")
     @Operation(summary = "Obtener movie por ID", description = "Devuelve una movie específica basado en su ID.")
@@ -62,7 +58,6 @@ public class ControllerMovie {
         }
     }
 
-
     @PostMapping
     @Operation(summary = "Crear una nueva movie", description = "Guarda una nueva película en la base de datos")
     @ApiResponses(value = {
@@ -72,7 +67,6 @@ public class ControllerMovie {
         Movie saved = serviceMovie.save(movie);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
-
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar una movie", description = "Actualiza los datos de una película existente")
@@ -89,7 +83,6 @@ public class ControllerMovie {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar una movie", description = "Elimina una película existente de la base de datos")

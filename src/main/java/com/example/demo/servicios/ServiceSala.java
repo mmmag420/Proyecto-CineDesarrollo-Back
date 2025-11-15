@@ -1,7 +1,5 @@
 package com.example.demo.servicios;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,31 +7,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.repositorios.RepositoryMovie;
 import com.example.demo.repositorios.RepositorySala;
 import com.example.demo.repositorios.RepositorySilla;
-import com.example.demo.servicios.ServiceMovie;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
-
-
 import com.example.demo.model.Chair;
 import com.example.demo.model.Hall;
 import com.example.demo.model.Movie;
 import com.example.demo.model.Hall.Dia;
 
-
-
 @Service
 @Transactional
 @DependsOn("serviceMovie")
 public class ServiceSala {
-
 	
 	private final RepositorySala repoSala;
 	private final ServiceMovie serviceMovie;
@@ -69,7 +58,6 @@ public class ServiceSala {
                 LocalTime.of(21, 30)                
             };
         
-        //definimos los dos horarios diaros de funciones 4:50 y 9:30 con localtime
         for (Map.Entry<Integer, SalaConfig> entry : salasConfig.entrySet()) {
         	
             int numSala = entry.getKey();
@@ -105,24 +93,20 @@ public class ServiceSala {
         return true;
     }
 	
-	//BUSCA SALA EN TODAS
 	public Hall buscarSalaGlobal(int idSala) {
 	   return repoSala.findById(idSala).orElse(null);
 	    
 	}
 
-	//BUSCA LA SALA POR DIA
 	public Hall buscarPorDia(int idSala, Dia diaPelicula) {
 		return repoSala.findByNumSalaAndDiaPelicula(idSala, diaPelicula).orElse(null);
 
 	}
 	
-	//BUSCA LA SALA POR DIA Y HORA	
     public Hall buscarPorDiaYHora(int numSala, Dia dia, LocalTime horaInicio) {
         return repoSala.findByNumSalaAndDiaPeliculaAndHoraInicio(numSala, dia, horaInicio).orElse(null);
     }
-	
-	//RESERVA SILLA EN LA SALA
+
     @Transactional
     public boolean reservarSilla(Hall sala, int numSilla) {
         if (numSilla < 1 || numSilla > 39) {
@@ -146,8 +130,7 @@ public class ServiceSala {
         return true;
 
     }
-	
-	//CANCELAR SILLA POR SI LA QUITA DEL CARRITO
+
 	   public boolean cancelarSilla(Hall sala, int numSilla) {
 		   if (sala.getSillas() == null || sala.getSillas().isEmpty()) {
 		        return false;
@@ -159,7 +142,7 @@ public class ServiceSala {
 		            .orElse(null);
 
 		    if (silla == null) return false;
-		    if (!silla.isEstado()) return false; // ya estaba libre
+		    if (!silla.isEstado()) return false; 
 
 		    silla.setEstado(false);
 		    repoSala.save(sala);
@@ -168,14 +151,13 @@ public class ServiceSala {
     
 	    }
 	
-	//DEVUELVE EL ESTADO DE LAS SILLAS DE LA SALA PARA MOSTRARLAS EN LA VENTANA
 	public boolean[] estadoSillas(Hall sala) {
 		asegurarSillas(sala);
 		
 		boolean[] estado = new boolean[39];
 		
 	    for (Chair c : sala.getSillas()) {
-	        int n = c.getNumSilla(); // 
+	        int n = c.getNumSilla(); 
 	        estado[n - 1] = c.isEstado();
 	    }
 	    
@@ -189,8 +171,6 @@ public class ServiceSala {
 	    return out;
 	}
 		
-
-	// GENERA SILLAS EN FALSE PARA CADA SALA
     private List<Chair> generarSillas(int cantidad, Hall hall) {
     	List<Chair> sillas = new ArrayList<Chair>();
         for (int i = 0; i < cantidad; i++) {        
@@ -208,7 +188,7 @@ public class ServiceSala {
     	                for (Chair c : h.getSillas()) {
     	                    c.setEstado(false);
     	                }
-    	                repoSala.save(h); // 👈 importante
+    	                repoSala.save(h); 
     	            }
     	            count++;
     	        }
@@ -219,21 +199,17 @@ public class ServiceSala {
            
     private record SalaConfig(Movie movie, int capacidad) {}
 
-    // CALCULAMOS A QUE HORA SE ESTA ACABANDO LA PELICULA
     private LocalTime calcularHoraFin(LocalTime horaInicio, Movie movie, int limpiezaMin) {
         int duracionMin = convertirDuracionAMinutos(movie.getDuracion());
         return horaInicio.plusMinutes(duracionMin + limpiezaMin);
     }
 
-    //CONVERTIMOS LA DURACION DE LAS PELCICULAS QUE ESTAN EN STRING A MINUTOS PARA PODER COMPARAR EN OTROS METODOS
     private int convertirDuracionAMinutos(String duracionStr) {
-        // Elimina espacios extra y convierte todo a minúsculas
         duracionStr = duracionStr.trim().toLowerCase();
 
         int horas = 0;
         int minutos = 0;
 
-        // Ejemplo de formato: "1h 55m" o "2h10m"
         if (duracionStr.contains("h")) {
             String[] partes = duracionStr.split("h");
             try {
@@ -253,15 +229,12 @@ public class ServiceSala {
                 }
             }
         } else if (duracionStr.contains("m")) {
-            // Solo minutos, ejemplo: "95m"
             String minStr = duracionStr.replace("m", "").trim();
             minutos = Integer.parseInt(minStr);
         }
 
         return horas * 60 + minutos;
     }
-    
-    // CASTEAR EL ENUM DIAS EN DAYOFWEEK
     
     private java.time.DayOfWeek toDow(Hall.Dia d) {
         switch (d) {
@@ -319,12 +292,10 @@ public class ServiceSala {
             sala.setSillas(new ArrayList<>());
         }
 
-        // Si ya tiene las 39, está bien
         if (sala.getSillas().size() == 39) {
             return;
         }
 
-        // Determina qué sillas faltan por número
         Set<Integer> existentes = sala.getSillas()
                 .stream()
                 .map(Chair::getNumSilla)

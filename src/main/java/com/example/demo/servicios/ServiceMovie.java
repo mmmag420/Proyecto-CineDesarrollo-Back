@@ -2,12 +2,9 @@ package com.example.demo.servicios;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.repositorios.RepositoryMovie;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import com.example.demo.model.Movie;
@@ -116,15 +113,4 @@ public class ServiceMovie {
         }
     }
 	
-	/*public List<Movie> buscarPorFiltros(String descripcion, String clasificacion) {
-        return repositorymovie.buscarPorFiltros(descripcion, clasificacion);
-    }
-	
-	public Movie findByAuthToken (String authToken) {
-		return repositorymovie.findByAuthToken(authToken);
-	}*/
-    
-  
-    	
-
 }

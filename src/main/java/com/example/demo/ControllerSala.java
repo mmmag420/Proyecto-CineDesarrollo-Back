@@ -1,32 +1,21 @@
 package com.example.demo;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import com.example.demo.model.Chair;
 import com.example.demo.model.Hall;
 import com.example.demo.model.Hall.Dia;
-import com.example.demo.model.Movie;
-
-import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import com.example.demo.servicios.ServiceMovie;
 import com.example.demo.servicios.ServiceSala;
 
@@ -47,11 +36,6 @@ public class ControllerSala {
 		this.serviceMovie = serviceMovie;
 		
 	}
-	
-  
-    // -----------------------
-    // 1) Cartelera / Listados
-    // -----------------------
 
     @Operation(summary = "Cartelera por día", description = "Devuelve todas las funciones (todas las salas) del día indicado.")
     @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente")
@@ -93,10 +77,6 @@ public class ControllerSala {
         return (h == null) ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada") : ResponseEntity.ok(h);
     }
 
-    // -----------------------
-    // 2) Sillas / Disponibilidad
-    // -----------------------
-
     @Operation(summary = "Estado de sillas", description = "Devuelve el estado de todas las sillas (true=ocupada, false=libre) para una función.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Estado obtenido"),
@@ -113,10 +93,6 @@ public class ControllerSala {
         boolean[] estado = serviceSala.estadoSillas(h);
         return ResponseEntity.ok(estado);
     }
-
-    // -----------------------
-    // 3) Reservas / Cancelaciones
-    // -----------------------
 
     @Operation(summary = "Reservar sillas", description = "Reserva una o varias sillas para una función. Falla si alguna silla ya está ocupada.")
     @ApiResponses({
@@ -141,11 +117,9 @@ public class ControllerSala {
             Hall h = serviceSala.buscarPorDiaYHora(sala, dia, horaInicio);
             if (h == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Función no encontrada");
 
-            // Reservar en lote (todo-o-nada)
             for (int a : asientos) {
                 boolean ok = serviceSala.reservarSilla(h, a);
                 if (!ok) {
-                    // revertir las previas
                     for (int b : asientos) {
                         if (b == a) break;
                         serviceSala.cancelarSilla(h, b);
@@ -185,10 +159,6 @@ public class ControllerSala {
         }
     }
 
-    // -----------------------
-    // 4) Administración / Limpieza
-    // -----------------------
-
     @Operation(
             summary = "Limpiar sala por ID",
             description = "Vacía todas las sillas de las salas cuyo ID coincida con el proporcionado, "
@@ -209,7 +179,6 @@ public class ControllerSala {
                     return ResponseEntity.badRequest().body("Parámetro 'id' inválido o ausente.");
                 }
 
-                // Llama a tu método de negocio que limpia por ID (sin mirar tiempo)
                 int salasLimpias = serviceSala.limpiarSalaPorId(idSala);
 
                 if (salasLimpias == 0) {
@@ -217,7 +186,6 @@ public class ControllerSala {
                             .body("No se encontraron salas con el ID " + idSala + ".");
                 }
 
-                // Devuelve un pequeño payload con información útil
                 return ResponseEntity.ok(
                     java.util.Map.of(
                         "idSala", idSala,

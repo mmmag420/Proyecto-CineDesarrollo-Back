@@ -1,9 +1,6 @@
 package com.example.demo.model;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -98,10 +95,6 @@ public class Bill {
 	public void setCliente(Client cliente) {
 		this.cliente = cliente;
 	}
-	
-	
-
-	
 	
 
 }

@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,19 +39,14 @@ public class Chair {
     @JsonIgnore 
     private Hall sala;
 	
-	
-	
 	public Chair() {}
 	
 	public Chair(int numSilla, boolean estado, Hall sala) {
 		this.numSilla = numSilla;
 		this.estado = estado;
-		this.sala = sala;
-		
+		this.sala = sala;		
 	}
 	
-	
-
 	public int getId() {
 		return id;
 	}
@@ -60,8 +54,6 @@ public class Chair {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	
 
 	public Hall getSala() {
 		return sala;
@@ -86,7 +78,6 @@ public class Chair {
 	public void setEstado(boolean estado) {
 		this.estado = estado;
 	}
-	
 	
 	
 }

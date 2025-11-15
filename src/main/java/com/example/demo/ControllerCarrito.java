@@ -1,25 +1,20 @@
 package com.example.demo;
 
 import com.example.demo.servicios.ServiceCarrito;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import com.example.demo.model.Bill;
 import com.example.demo.model.Car;
 import com.example.demo.model.Food;
 import com.example.demo.model.Ticket;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,8 +31,6 @@ public class ControllerCarrito {
         this.service = service;
         this.mapper = mapper;
     }
-	
-    // ===================== COMBOS =====================
 
     @Operation(summary = "Agregar combo", description = "Body: { \"carrito\": Car, \"combo\": Food }")
     @ApiResponses({
@@ -49,7 +42,6 @@ public class ControllerCarrito {
     public ResponseEntity<?> agregarCombo(@RequestBody Map<String, Object> body) {
         Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
         Food combo  = mapper.convertValue(body.get("combo"),   Food.class);
-
         Car actualizado = service.agregarComboAlCarrito(carrito, combo);
         return (actualizado != null)
                 ? ResponseEntity.ok(actualizado)
@@ -66,7 +58,6 @@ public class ControllerCarrito {
     public ResponseEntity<?> quitarUnaUnidadCombo(@RequestBody Map<String, Object> body) {
         Car carrito = mapper.convertValue(body.get("carrito"), Car.class);
         Food combo  = mapper.convertValue(body.get("combo"),   Food.class);
-
         Car actualizado = service.quitarUnaUnidadCombo(carrito, combo);
         return (actualizado != null)
                 ? ResponseEntity.ok(actualizado)
@@ -80,8 +71,6 @@ public class ControllerCarrito {
     public ResponseEntity<?> listarCombos(@RequestBody Car carrito) {
         return ResponseEntity.ok(service.listarCombosDelCarrito(carrito));
     }
-
-    // ===================== ENTRADAS =====================
 
     @Operation(summary = "Agregar entrada", description = "Body: { \"carrito\": Car, \"ticket\": Ticket }")
     @ApiResponses({
@@ -125,8 +114,6 @@ public class ControllerCarrito {
         return ResponseEntity.ok(service.listarEntradasDelCarrito(carrito));
     }
 
-    // ===================== VACÍAR / CHECKOUT =====================
-
     @Operation(summary = "Vaciar carrito", description = "Body: Car")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Carrito vaciado"),
@@ -167,6 +154,5 @@ public class ControllerCarrito {
         return ResponseEntity.ok(factura);
     }
     
-
 
 }
