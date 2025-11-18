@@ -1,9 +1,7 @@
 package com.example.demo.repositorios;
 
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.demo.model.Client;
 
 public interface RepositoryClient extends JpaRepository<Client, Integer> {

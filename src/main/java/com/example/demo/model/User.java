@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +32,7 @@ public class User {
     
     @NotBlank
     @Size(min = 8)
-    @Column(name = "contrasena", nullable = false)                // <-- columna en DB (ASCII)
+    @Column(name = "contrasena", nullable = false)             
     @JsonProperty(value = "contraseña", access = JsonProperty.Access.WRITE_ONLY)
 	private String contrasena;
 	

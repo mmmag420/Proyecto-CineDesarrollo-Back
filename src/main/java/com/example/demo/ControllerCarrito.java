@@ -1,25 +1,20 @@
 package com.example.demo;
 
 import com.example.demo.servicios.ServiceCarrito;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import com.example.demo.model.Bill;
 import com.example.demo.model.Car;
 import com.example.demo.model.Food;
 import com.example.demo.model.Ticket;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,8 +32,7 @@ public class ControllerCarrito {
         this.mapper = mapper;
     }
 	
-    // ===================== COMBOS =====================
-
+	
     @Operation(summary = "Agregar combo", description = "Body: { \"carrito\": Car, \"combo\": Food }")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Carrito actualizado",
@@ -56,6 +50,7 @@ public class ControllerCarrito {
                 : ResponseEntity.badRequest().body("Datos inválidos (carrito/combo)");
     }
 
+    
     @Operation(summary = "Quitar una unidad de combo", description = "Body: { \"carrito\": Car, \"combo\": Food }")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Carrito actualizado",
@@ -73,6 +68,7 @@ public class ControllerCarrito {
                 : ResponseEntity.badRequest().body("Datos inválidos (carrito/combo)");
     }
 
+    
     @Operation(summary = "Listar combos del carrito", description = "Body: Car")
     @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = Food.class))))
@@ -81,7 +77,6 @@ public class ControllerCarrito {
         return ResponseEntity.ok(service.listarCombosDelCarrito(carrito));
     }
 
-    // ===================== ENTRADAS =====================
 
     @Operation(summary = "Agregar entrada", description = "Body: { \"carrito\": Car, \"ticket\": Ticket }")
     @ApiResponses({
@@ -100,6 +95,7 @@ public class ControllerCarrito {
                 : ResponseEntity.badRequest().body("Datos inválidos (carrito/ticket)");
     }
 
+    
     @Operation(summary = "Eliminar entrada", description = "Body: { \"carrito\": Car, \"ticket\": Ticket }")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Carrito actualizado",
@@ -117,6 +113,7 @@ public class ControllerCarrito {
                 : ResponseEntity.badRequest().body("Datos inválidos (carrito/ticket)");
     }
 
+    
     @Operation(summary = "Listar entradas del carrito", description = "Body: Car")
     @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = Ticket.class))))
@@ -125,8 +122,7 @@ public class ControllerCarrito {
         return ResponseEntity.ok(service.listarEntradasDelCarrito(carrito));
     }
 
-    // ===================== VACÍAR / CHECKOUT =====================
-
+    
     @Operation(summary = "Vaciar carrito", description = "Body: Car")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Carrito vaciado"),
@@ -138,6 +134,7 @@ public class ControllerCarrito {
         service.vaciarCarrito(carrito);
         return ResponseEntity.noContent().build(); // 204
     }
+    
 
     @Operation(summary = "Checkout (adjuntar carrito a factura)",
             description = "Body: { \"carrito\": Car, \"factura\": Bill }")
@@ -166,7 +163,5 @@ public class ControllerCarrito {
         }
         return ResponseEntity.ok(factura);
     }
-    
-
 
 }

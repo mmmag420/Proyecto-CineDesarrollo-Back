@@ -3,9 +3,7 @@ package com.example.demo.model;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +17,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
@@ -40,7 +37,7 @@ public class Hall {
 	
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
-	 private int id; // <-- nuevo PK
+	 private int id; 
 	
 	@Column(name = "num_sala", nullable = false)
 	private int numSala;
@@ -131,8 +128,6 @@ public class Hall {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-	
-	
+	}	
 
 }

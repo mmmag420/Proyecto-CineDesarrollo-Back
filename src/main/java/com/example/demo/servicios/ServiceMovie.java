@@ -2,12 +2,9 @@ package com.example.demo.servicios;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.repositorios.RepositoryMovie;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import com.example.demo.model.Movie;
@@ -18,10 +15,12 @@ public class ServiceMovie {
 
 	private final RepositoryMovie repositorymovie;
 	
+	
 	@Autowired
 	public ServiceMovie (RepositoryMovie repositorymovie) {
 		this.repositorymovie = repositorymovie;
 	}
+	
 	
 	@PostConstruct
 	private void initSampleData() {
@@ -70,6 +69,7 @@ public class ServiceMovie {
 
 	}
 	
+	
     public List<Movie> findAll() {
         return repositorymovie.findAll();
     }
@@ -79,9 +79,11 @@ public class ServiceMovie {
 		return repositorymovie.save(movie);
 	}
 	
+	
 	public Movie findById (int id) {
 		return repositorymovie.findById(id).orElse(null);
 	}
+	
 	
     public Movie update(Movie movie) {
         Optional<Movie> actualOpt = repositorymovie.findById(movie.getId());
@@ -103,6 +105,7 @@ public class ServiceMovie {
         return actual;
     }
 	
+    
     public boolean deleteById(int id) {
         Optional<Movie> actual = repositorymovie.findById(id);
         if (actual.isEmpty()) return false;
@@ -115,16 +118,5 @@ public class ServiceMovie {
             repositorymovie.save(m);
         }
     }
-	
-	/*public List<Movie> buscarPorFiltros(String descripcion, String clasificacion) {
-        return repositorymovie.buscarPorFiltros(descripcion, clasificacion);
-    }
-	
-	public Movie findByAuthToken (String authToken) {
-		return repositorymovie.findByAuthToken(authToken);
-	}*/
-    
-  
-    	
 
 }
