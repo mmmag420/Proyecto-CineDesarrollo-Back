@@ -1,23 +1,15 @@
 package com.example.demo.servicios;
 
-
-
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import com.example.demo.model.Bill;
 import com.example.demo.model.Car;
-import com.example.demo.model.Chair;
 import com.example.demo.model.Food;
 import com.example.demo.model.Hall;
 import com.example.demo.model.Ticket;
 import com.example.demo.repositorios.RepositoryCarrito;
 import com.example.demo.repositorios.RepositoryCombo;
 import com.example.demo.repositorios.RepositorySala;
-
 import jakarta.transaction.Transactional;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,16 +41,13 @@ public class ServiceCarrito {
         factura.setCarrito(carrito);
         return true;
       }
+
     
-    
- 
-    //agrega un combo al carrito y actualiza el precio
     @Transactional
     public Car agregarComboAlCarrito(Car carrito, Food combo) {
         if (carrito == null || combo == null) return null;
         if (carrito.getIdCarrito() <= 0) return null;
 
-        // 1) Reatachar o crear el carrito "managed"
         Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
         if (managed == null) {
             managed = new Car();
@@ -70,27 +59,23 @@ public class ServiceCarrito {
             managed = repoCarrito.save(managed);
         }
 
-        // 2) Asegurar listas no nulas
         if (managed.getCombos() == null)   managed.setCombos(new ArrayList<>());
         if (managed.getEntradas() == null) managed.setEntradas(new ArrayList<>());
 
-        // 3) Resolver el combo REAL desde BD (no uses el del body)
         Food real = repoCombo.findById(combo.getIdCombo()).orElse(null);
         if (real == null) return null;
 
-        // 4) Evitar duplicado exacto (opcional)
         boolean yaEsta = managed.getCombos().stream()
             .anyMatch(c -> Objects.equals(c.getIdCombo(), real.getIdCombo()));
         if (!yaEsta) {
             managed.getCombos().add(real);
         }
 
-        // 5) Recalcular y guardar SOLO el managed
         recalcularTotal(managed);
         return repoCarrito.save(managed);
     }
-	
-	//quita una unidad de un combo en el carrito
+
+    
     public Car quitarUnaUnidadCombo(Car carrito, Food combo) {
         if (carrito == null || combo == null) return null;
 
@@ -110,12 +95,11 @@ public class ServiceCarrito {
         return repoCarrito.save(carrito);
     }
     
-    //agrega entradas al carrito y calcula su precio
+
     @Transactional
     public Car agregarEntradaAlCarrito(Car carrito, Ticket t) {
         if (carrito == null || t == null || t.getSala() == null) return null;
 
-        // Re-attach o crea
         if (carrito.getIdCarrito() <= 0) return null;
         Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
         if (managed == null) {
@@ -131,20 +115,16 @@ public class ServiceCarrito {
         if (managed.getEntradas() == null) managed.setEntradas(new java.util.ArrayList<>());
         if (managed.getCombos()   == null) managed.setCombos(new java.util.ArrayList<>());
 
-        // Hall real (con id)
+ 
         Hall s = t.getSala();
         Hall salaReal = repoSala.findByNumSalaAndDiaPeliculaAndHoraInicio(
                 s.getNumSala(), s.getDiaPelicula(), s.getHoraInicio()
         ).orElse(null);
         if (salaReal == null) return null;
 
-        // Ticket listo para insert
         t.setSala(salaReal);
         if (t.getPrecioEntrada() <= 0) t.setPrecioEntrada(14000);
-        // si tienes getId/setId(int):
-        // if (t.getId() != 0) t.setId(0);
-
-        // Evitar duplicado
+  
         boolean yaExiste = managed.getEntradas().stream()
             .anyMatch(e -> e.getSala() != null
                         && java.util.Objects.equals(e.getSala().getId(), salaReal.getId())
@@ -180,12 +160,14 @@ public class ServiceCarrito {
         return repoCarrito.save(carrito);
     }
     
+    
     private boolean mismaFuncion(Hall a, Hall b) {
         if (a == null || b == null) return false;
         return a.getNumSala() == b.getNumSala()
             && a.getDiaPelicula() == b.getDiaPelicula()
             && java.util.Objects.equals(a.getHoraInicio(), b.getHoraInicio());
     }
+    
     
     @Transactional
     public Car vaciarCarrito(Car carrito) {
@@ -194,12 +176,10 @@ public class ServiceCarrito {
         Car managed = repoCarrito.findById(carrito.getIdCarrito()).orElse(null);
         if (managed == null) return null;
 
-        // 🔒 Si este carrito ya se usó en una factura, no lo vaciamos
         if (managed.isEstado()) {
-            return null; // indica al front que debe crear un carrito nuevo
+            return null; 
         }
 
-        // Vaciar SOLO si no está facturado
         if (managed.getEntradas() != null) managed.getEntradas().clear();
         if (managed.getCombos()   != null) managed.getCombos().clear();
 
@@ -209,14 +189,7 @@ public class ServiceCarrito {
         return repoCarrito.save(managed);
     }
 
-
-
-    /*private void recalcularYGuardar() {
-        Car c = repoCarrito.obtenerCarrito();
-        recalcularTotal(c);
-        repoCarrito.guardar(c);
-    }*/
-
+    
     private void recalcularTotal(Car carrito) {
         double total = 0.0;
         for (Food f : carrito.getCombos()) total += f.getPrecio();
@@ -224,9 +197,11 @@ public class ServiceCarrito {
         carrito.setPrecioFinal(total);
     }
     
+    
     public List<Food> listarCombosDelCarrito(Car carrito) {
         return carrito != null ? carrito.getCombos() : List.of();
     }    
+    
     
     public List<Ticket> listarEntradasDelCarrito(Car carrito) {
     	return carrito != null ? carrito.getEntradas() : List.of();

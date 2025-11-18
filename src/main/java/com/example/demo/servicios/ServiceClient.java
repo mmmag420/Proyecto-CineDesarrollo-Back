@@ -3,15 +3,11 @@ package com.example.demo.servicios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.repositorios.RepositoryCarrito;
 import com.example.demo.repositorios.RepositoryClient;
-
 import org.springframework.transaction.annotation.Transactional;
-
 import com.example.demo.model.Bill;
 import com.example.demo.model.Car;
 import com.example.demo.model.Client;
@@ -26,7 +22,6 @@ public class ServiceClient {
 	private final RepositoryCarrito repoCar;
 	
 	@Autowired private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
-
 
 	public ServiceClient(RepositoryClient repoClient, RepositoryCarrito repoCar) {
 		this.repoClient = repoClient;
@@ -55,9 +50,11 @@ public class ServiceClient {
 		return true;
 	}
 	
+	
 	public Client buscarCliente(String cedula) {
 		return repoClient.findByCedula(cedula).orElse(null);
 	}
+	
 	
 	public boolean editarCliente(Client cliente) {
 		if (cliente.getEdad() < 18) return false;
@@ -81,9 +78,11 @@ public class ServiceClient {
         return true;
 	}
 	
+	
     public Client buscarPorCorreoYContraseña(String correo, String contraseña) {
         return repoClient.findByCorreoAndContrasena(correo, contraseña).orElse(null);
     }
+    
     
     @Transactional(readOnly = true)
     public ArrayList<Bill> obtenerTodasLasFacturasDelUser(Client cliente) {
@@ -93,7 +92,6 @@ public class ServiceClient {
     	    var facturas = c.getHistorial();
     	    if (facturas == null || facturas.isEmpty()) return new ArrayList<>();
 
-    	    // Forzar carga de asociaciones LAZY antes de serializar en el front
     	    for (Bill f : facturas) {
     	        Car car = f.getCarrito();
     	        if (car != null) {
@@ -114,6 +112,7 @@ public class ServiceClient {
     	    return new ArrayList<>(facturas);
     }
 	
+    
     @Transactional
     public boolean agregarFacturaClient(Client cliente, Bill factura) {
         Client c = buscarCliente(cliente.getCedula());
@@ -142,6 +141,7 @@ public class ServiceClient {
         return true;
     }
     
+    
     public Client validarLogin(String correo, String contraseña) {
     	Optional<Client> encontrado = repoClient.findByCorreo(correo);
     	
@@ -158,7 +158,5 @@ public class ServiceClient {
     	
     	return cliente;
     }
-    
- 
 	
 }

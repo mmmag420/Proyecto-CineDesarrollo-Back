@@ -14,16 +14,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.servicios.ServiceClient;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-
 import com.example.demo.model.Bill;
 import com.example.demo.model.Client;
 
@@ -41,8 +37,7 @@ public class ControllerClient {
 		this.clienteService = clienteService;
 	}
 	
-	
-    // listar
+
 	@Operation(summary = "Listar clientes", description = "Devuelve todos los clientes registrados.")
     @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente")	
 	@GetMapping
@@ -50,7 +45,7 @@ public class ControllerClient {
 	        return ResponseEntity.ok(clienteService.listarClientes());
 	}
 		
-	//guardar cliente
+
     @Operation(summary = "Crear cliente", description = "Registra un nuevo cliente. Reglas: cedula unica y edad >= 18.")
     @ApiResponses({ @ApiResponse(responseCode = "201", description = "Cliente creado"),
     				@ApiResponse(responseCode = "409", description = "Cedula ya registrada"), 
@@ -59,20 +54,18 @@ public class ControllerClient {
 	public ResponseEntity<?> crear(@RequestBody Client body) {
 		boolean ok = clienteService.guardarCliente(body);
 		if(ok) {
-			return ResponseEntity.status(HttpStatus.CREATED).body(body); //201
+			return ResponseEntity.status(HttpStatus.CREATED).body(body); 
 		}
 		
 		Client existente = clienteService.buscarCliente(body.getCedula());
 		if(existente != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("La cédula ya está registrada"); // 409			
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("La cédula ya está registrada"); 		
 		}
-        return ResponseEntity.badRequest().body("Datos inválidos (cedula/edad)"); // 400
+        return ResponseEntity.badRequest().body("Datos inválidos (cedula/edad)"); 
 		
 	}
     
     
-	
-	//buscar
     @Operation(summary = "Obtener cliente por cédula", description = "Consulta un cliente específico usando su cedula.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
@@ -85,7 +78,6 @@ public class ControllerClient {
 	}
     
 	
-	//editar
     @Operation(summary = "Actualizar cliente (PUT)", description = "Reemplaza todos los datos del cliente manteniendo la misma cedula.")    
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente actualizado"),
@@ -103,13 +95,12 @@ public class ControllerClient {
 		
 		boolean ok = clienteService.editarCliente(body);
 		if(!ok) {
-			return ResponseEntity.badRequest().body("Datos inválidos (edad >= 18)"); // 400
+			return ResponseEntity.badRequest().body("Datos inválidos (edad >= 18)"); 
 		}
 		return ResponseEntity.ok(body);
 	}
     
-	
-	//eliminar
+
     @Operation(summary = "Eliminar cliente", description = "Elimina un cliente por su cedula.")   
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Cliente eliminado"),
@@ -119,35 +110,15 @@ public class ControllerClient {
 	public ResponseEntity<?> eliminar(@Parameter(description = "Cédula del cliente a eliminar", example = "1034290939")@PathVariable String cedula) {
 		Client existente = clienteService.buscarCliente(cedula);
 		if(existente == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado"); // 404
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado"); 
         }
 		boolean ok = clienteService.eliminarCliente(existente);
 		if(!ok) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo eliminar"); // fallback
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo eliminar"); 
 		}
 		return ResponseEntity.noContent().build();
 
 	}
-    
-    
-    /*//buscar por correo y contraseña
-    @Operation(summary = "Login de cliente", description = "Permite autenticar a un cliente enviando correo y contraseña. Devuelve el cliente si las credenciales son válidas.")
-    @ApiResponses(value = {
-    	    @ApiResponse(responseCode = "200", description = "Login exitoso, retorna los datos del cliente"),
-    	    @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
-    	})     
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-    	String correo = body.get("correo");
-    	String password = body.get("contraseña");
-    	
-    	Client c = clienteService.buscarPorCorreoYContraseña(correo, password);
-        if (c == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
-        }
-               
-        return ResponseEntity.ok(c);
-    }*/
     
     
     @Operation(summary = "Listar facturas de un cliente", description = "Devuelve todas las facturas asociadas al cliente indicado por su ID.")
@@ -184,6 +155,14 @@ public class ControllerClient {
     }
 
     
+    @Operation(
+            summary = "Login de cliente",
+            description = "Valida las credenciales del cliente (correo y contraseña). " + "Si son correctas, retorna la información del cliente."
+        )
+        @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login exitoso"),
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+        })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> datos) {
 
@@ -199,8 +178,6 @@ public class ControllerClient {
         }
 
         return ResponseEntity.ok(cliente); 
-    }
-   
-    
+    }   
 	
 }

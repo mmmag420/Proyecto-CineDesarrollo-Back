@@ -1,22 +1,17 @@
 package com.example.demo.servicios;
 
-
 import com.example.demo.model.Food;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import com.example.demo.repositorios.RepositoryCombo;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 
 @Service
 @Transactional
 public class ServiceCombo {
-	
 	
 	private final RepositoryCombo repo;
 
@@ -24,6 +19,7 @@ public class ServiceCombo {
     	this.repo = repo;
 
     }
+    
     
     @PostConstruct
     public void iniciarCombosQuemados() {
@@ -37,17 +33,17 @@ public class ServiceCombo {
     	
     }
 
-    //devuelve todos los combos disponiles
+    
     public List<Food> listarCombos() {
         return repo.findAll();
     }
 
-    //busca combo por el id
+
     public Food buscarCombo(int id) {
         return repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Combo no encontrado"));
     }
 
-    //agrega un nuevo combo si no existe
+
     public void agregarCombo(Food food) {
         if (repo.existsById(food.getIdCombo())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El combo ya existe");

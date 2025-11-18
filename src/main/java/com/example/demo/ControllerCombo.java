@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.servicios.ServiceCombo;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,6 +29,7 @@ public class ControllerCombo {
 		this.service = service;
 	}
 
+    
     @Operation(summary = "listar todos los combos", description = "devuelve la lista de combos disponibles")
     @ApiResponse(responseCode = "200", description = "lista obtenida correctamente")
     @GetMapping
@@ -38,6 +37,7 @@ public class ControllerCombo {
         return service.listarCombos();
     }
 
+    
     @Operation(summary = "buscar combo por id", description = "devuelve un combo especifico segun su id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "combo encontrado"),
@@ -51,6 +51,7 @@ public class ControllerCombo {
         return (combo == null) ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("combo no encontrado") : ResponseEntity.ok(combo);   
     }
 
+    
     @Operation(summary = "crear un nuevo combo", description = "agrega un combo al catalogo")
     @ApiResponse(responseCode = "201", description = "combo creado exitosamente")
     @PostMapping
